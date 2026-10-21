@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - ".github/atividade.txt"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testes:
+    name: Testes (JUnit + interface)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Compilar e testar (JUnit 6 + Spring Boot Test)
+        run: mvn -B verify
+
+      - name: Bibliotecas para o teste de interface
+        run: mvn -B -q dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=target/lib
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Playwright
+        run: |
+          npm ci --prefix e2e
+          npx --prefix e2e playwright install --with-deps chromium
+
+      - name: Teste de interface (Spring Boot + Chromium)
+        run: npm --prefix e2e test
+
+  windows:
+    name: Lume.exe (Windows x64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: NSIS
+        run: sudo apt-get update -q && sudo apt-get install -y -q nsis
+
+      - name: Gerar o executável portátil (jlink + NSIS, limite de 100 MB)
+        run: bash scripts/empacotar-windows.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lume-exe
+          path: target/windows/Lume.exe
+          retention-days: 14

@@ -1,0 +1,180 @@
+[
+  {
+    "file": "guia-pratico-de-python.pdf",
+    "title": "Guia prático de Python",
+    "author": "Marina Toledo",
+    "kind": "pdf",
+    "tags": [
+      "python",
+      "programação",
+      "automação"
+    ],
+    "reading_state": "lendo",
+    "progress_page": 4,
+    "favorite": true,
+    "collection": "Tecnologia"
+  },
+  {
+    "file": "arquitetura-de-software-notas-de-campo.pdf",
+    "title": "Arquitetura de software: notas de campo",
+    "author": "Rafael Antunes Lobo",
+    "kind": "pdf",
+    "tags": [
+      "arquitetura",
+      "software",
+      "boas práticas"
+    ],
+    "reading_state": "lido",
+    "progress_page": null,
+    "favorite": true,
+    "collection": "Tecnologia"
+  },
+  {
+    "file": "introducao-ao-postgresql.pdf",
+    "title": "Introdução ao PostgreSQL",
+    "author": "Beatriz Couto",
+    "kind": "pdf",
+    "tags": [
+      "banco de dados",
+      "sql",
+      "postgresql"
+    ],
+    "reading_state": "para_ler",
+    "progress_page": null,
+    "favorite": false,
+    "collection": "Tecnologia"
+  },
+  {
+    "file": "redes-neurais-sem-misterio.pdf",
+    "title": "Redes neurais sem mistério",
+    "author": "Otávio Reis",
+    "kind": "pdf",
+    "tags": [
+      "ia",
+      "redes neurais",
+      "introdução"
+    ],
+    "reading_state": "lendo",
+    "progress_page": 3,
+    "favorite": false,
+    "collection": "Tecnologia"
+  },
+  {
+    "file": "contos-da-serra.pdf",
+    "title": "Contos da Serra",
+    "author": "Inês Valadares",
+    "kind": "pdf",
+    "tags": [
+      "contos",
+      "ficção",
+      "literatura"
+    ],
+    "reading_state": "lendo",
+    "progress_page": 3,
+    "favorite": true,
+    "collection": "Literatura e cozinha"
+  },
+  {
+    "file": "caderno-de-receitas-da-vo-lucia.pdf",
+    "title": "Caderno de receitas da Vó Lúcia",
+    "author": "Teresa Andrade",
+    "kind": "pdf",
+    "tags": [
+      "receitas",
+      "culinária"
+    ],
+    "reading_state": "para_ler",
+    "progress_page": null,
+    "favorite": true,
+    "collection": "Literatura e cozinha"
+  },
+  {
+    "file": "estudo-de-caso-migracao-para-a-nuvem.pdf",
+    "title": "Estudo de caso: migração para a nuvem da Cooperativa Agrícola Vale do Ipê",
+    "author": "Nuvem Clara Consultoria",
+    "kind": "pdf",
+    "tags": [
+      "nuvem",
+      "estudo de caso",
+      "infraestrutura"
+    ],
+    "reading_state": "para_ler",
+    "progress_page": null,
+    "favorite": false,
+    "collection": "Gestão"
+  },
+  {
+    "file": "resultados-do-3-trimestre-2026.pdf",
+    "title": "Resultados do 3º trimestre de 2026 — Livraria Alameda",
+    "author": "Diretoria financeira da Livraria Alameda",
+    "kind": "pdf",
+    "tags": [
+      "resultados",
+      "apresentação",
+      "vendas"
+    ],
+    "reading_state": null,
+    "progress_page": null,
+    "favorite": false,
+    "collection": "Gestão"
+  },
+  {
+    "file": "manual-do-colaborador.docx",
+    "title": "Manual do colaborador",
+    "author": "Juliana Prates",
+    "kind": "docx",
+    "tags": [
+      "manual",
+      "pessoas",
+      "integração"
+    ],
+    "reading_state": "lido",
+    "progress_page": null,
+    "favorite": false,
+    "collection": "Gestão"
+  },
+  {
+    "file": "politica-de-seguranca-da-informacao.docx",
+    "title": "Política de segurança da informação",
+    "author": "Daniel Moretti",
+    "kind": "docx",
+    "tags": [
+      "segurança",
+      "política"
+    ],
+    "reading_state": null,
+    "progress_page": null,
+    "favorite": false,
+    "collection": "Gestão"
+  },
+  {
+    "file": "ata-reuniao-planejamento-4-trimestre.docx",
+    "title": "Ata da reunião de planejamento do 4º trimestre",
+    "author": "Carolina Mendes",
+    "kind": "docx",
+    "tags": [
+      "ata",
+      "planejamento",
+      "reunião"
+    ],
+    "reading_state": null,
+    "progress_page": null,
+    "favorite": false,
+    "collection": null
+  },
+  {
+    "file": "proposta-comercial-projeto-atlas.docx",
+    "title": "Proposta comercial — Projeto Atlas",
+    "author": "Rodrigo Saldanha",
+    "kind": "docx",
+    "tags": [
+      "proposta",
+      "comercial",
+      "aplicativo"
+    ],
+    "reading_state": null,
+    "progress_page": null,
+    "favorite": false,
+    "collection": "Gestão"
+  }
+]

@@ -1,0 +1,18 @@
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.nsi text eol=crlf
+*.exe binary
+*.jar binary
+*.ico binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.woff2 binary
+*.ttf binary
+*.pfb binary
+*.bcmap binary
+*.docx binary
+*.wasm binary
+# Linguagens no GitHub: pdf.js (vendor) não conta como código do projeto
+src/main/resources/static/vendor/** linguist-vendored
