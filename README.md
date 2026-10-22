@@ -21,6 +21,8 @@
 
 > **Banco de dados:** [`Banco-de-Dados-Lume-Desktop.pdf`](Banco-de-Dados-Lume-Desktop.pdf) traz o diagrama de relacionamentos, o dicionário de dados, o ciclo de vida dos documentos, a busca em texto completo com FTS5, as regras de integridade, consultas prontas, backup e como evoluir o esquema.
 
+> **Versão web:** o Lume também roda no navegador, veja [Document-Library-Platform](https://github.com/Violet-pixel/Document-Library-Platform).
+
 <p align="center">
   <img src="docs/images/tela-biblioteca.png" alt="Biblioteca com as capas geradas, o continuar lendo e os filtros">
 </p>
@@ -83,6 +85,12 @@ O servidor só atende `127.0.0.1`: a janela entra com uma chave de uso único e 
 | Pronto | Índice de busca atualizado e a tela muda sozinha |
 
 Falhas passageiras tentam de novo (5 s, 15 s, 45 s); arquivos protegidos por senha ou corrompidos falham na hora com a explicação. O que ficou pela metade quando o Lume foi fechado volta para a fila na próxima abertura.
+
+### Como contribuir
+
+1. Abra uma issue descrevendo a ideia ou o problema.
+2. Crie uma branch a partir da `main` e envie um pull request.
+3. Quando a mudança for feita em dupla, inclua a linha `Co-authored-by:` no commit para que as duas pessoas recebam o crédito.
 
 ## Desenvolvimento
 
