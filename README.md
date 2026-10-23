@@ -137,12 +137,6 @@ O repositório oficial fica na conta da Clara, em [Violet-pixel/Document-Library
 
 Sugestões, issues e pull requests são bem-vindos nos dois repositórios.
 
-## Licença
-
-Copyright (©) 2026 Erik Pimenta & Clara Portes
-
-Este projeto é distribuído sob a licença [MIT](LICENSE). Você pode usar, copiar, modificar e redistribuir o código, inclusive para fins comerciais, desde que mantenha o aviso de copyright e o texto da licença.
-
 ### Componentes de terceiros
 
 O Lume inclui ou depende de componentes com licenças próprias, que continuam valendo para cada um deles:
@@ -167,3 +161,9 @@ O Lume inclui ou depende de componentes com licenças próprias, que continuam v
 O Microsoft Edge (WebView2/Chromium) que desenha a janela já vem com o Windows e não é redistribuído pelo Lume.
 
 Os documentos enviados pelos usuários (PDF e DOCX) pertencem aos seus respectivos autores e não são cobertos por esta licença.
+
+## Licença
+
+Copyright (©) 2026 Erik Pimenta & Clara Portes
+
+Este projeto é distribuído sob a licença [MIT](LICENSE). Você pode usar, copiar, modificar e redistribuir o código, inclusive para fins comerciais, desde que mantenha o aviso de copyright e o texto da licença.
