@@ -1,0 +1,125 @@
+/* Lume — Banco de dados (específico deste documento; carregado depois de base.css). */
+
+/* ---------- Capa ---------- */
+.cover { page: cover; position: relative; width: 210mm; height: 296mm; background: var(--creme); overflow: hidden; break-after: page; }
+.cv-top { position: absolute; top: 16mm; left: 22mm; right: 20mm; display: flex; justify-content: space-between; font: 500 7pt var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); border-bottom: 0.6pt solid var(--ink); padding-bottom: 2.5mm; }
+.cv-main { position: absolute; top: 62mm; left: 22mm; right: 20mm; }
+.cv-logo { width: 13mm; height: 13mm; display: block; margin-bottom: 8mm; opacity: .9; }
+.cv-kicker { font: 500 7.4pt var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-bottom: 3mm; }
+.cv-title { font-family: var(--serif); font-weight: 600; font-size: 104pt; line-height: .92; letter-spacing: -0.035em; margin: 0; color: var(--ink); string-set: none; }
+.cv-rule { width: 100%; height: 0; border-top: 0.8pt solid var(--accent); margin: 7mm 0 5mm; }
+.cv-sub { font-family: var(--serif); font-size: 36pt; line-height: 1.05; letter-spacing: -0.02em; color: var(--ink); }
+.cv-lede { font-family: var(--serif); font-style: italic; font-size: 12.5pt; line-height: 1.45; color: var(--ink-2); max-width: 120mm; margin-top: 5mm; }
+.cv-card { position: absolute; left: 22mm; right: 20mm; bottom: 58mm; margin: 0; display: flex; border-top: 0.8pt solid var(--ink); border-bottom: 0.5pt solid var(--line-strong); }
+.cv-card div { flex: 1; padding: 2.6mm 3mm 2.6mm 0; }
+.cv-card div + div { border-left: 0.5pt solid var(--line-strong); padding-left: 3mm; }
+.cv-card dt { font: 500 6.2pt var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1mm; }
+.cv-card dd { margin: 0; font: 500 7.6pt var(--mono); color: var(--ink); }
+.cv-foot { position: absolute; left: 22mm; right: 20mm; bottom: 26mm; display: flex; justify-content: space-between; align-items: baseline; }
+.cv-author { font-family: var(--serif); font-size: 14pt; color: var(--ink); }
+.cv-copy { font: 400 7pt var(--mono); color: var(--ink-2); }
+.cv-stripe { position: absolute; left: 0; right: 0; bottom: 0; height: 11mm; display: flex; }
+.cv-stripe i { flex: 1; display: block; }
+.cv-stripe i:first-child { background: #ECE7CF !important; }
+@page cover { margin: 0; @top-left { content: none; } @top-right { content: none; } @bottom-left { content: none; } @bottom-right { content: none; } }
+
+/* ---------- Sumário ---------- */
+.toc-page { break-after: page; }
+.toc-title { font-size: 22pt; margin: 0 0 3mm; string-set: none; }
+.toc li { font-size: 8.2pt; padding: 0.55mm 0; line-height: 1.35; }
+.toc li.ch { padding-top: 1.6mm; }
+.toc li.sub code { background: none; padding: 0; font-size: 0.9em; }
+
+/* ---------- Etiquetas de domínio ---------- */
+.chip { display: inline-block; font: 500 6.4pt var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink); background: var(--c); padding: 0.5mm 1.6mm; border-radius: 1.5px; white-space: nowrap; }
+.sub { font: 400 6.4pt var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-left: 1.6mm; }
+.small { font-size: 8pt; color: var(--ink-2); }
+
+/* ---------- Visão rápida ---------- */
+.stats { display: flex; flex-wrap: wrap; border-top: 1pt solid var(--ink); margin: 2mm 0 6mm; }
+.stat { width: 25%; box-sizing: border-box; padding: 3mm 3mm 3mm 0; border-bottom: 0.5pt solid var(--line-strong); }
+.stat b { display: block; font-family: var(--serif); font-weight: 600; font-size: 24pt; line-height: 1.05; color: var(--ink); }
+.stat span { display: block; font-weight: 650; font-size: 8.4pt; margin-top: 0.8mm; }
+.stat small { display: block; font: 400 6.6pt var(--mono); color: var(--muted); margin-top: 0.6mm; }
+.where { display: flex; gap: 4mm; margin: 2mm 0 4mm; }
+.w-col { flex: 1; border-top: 3pt solid var(--c); background: var(--paper); padding: 2.5mm 0 0; }
+.w-col ul { padding-left: 4mm; margin-top: 2mm; font-size: 8.2pt; }
+.w-col li { margin-bottom: 0.9mm; }
+
+/* ---------- Diagramas ---------- */
+.er-fig { break-before: page; margin: 0; }
+svg.er { width: 100%; height: auto; display: block; }
+.ent-box { fill: #FFFFFF; stroke: var(--ink); stroke-width: 0.8; }
+.ent-rule { stroke: var(--ink); stroke-width: 0.5; }
+.ent-name { font-family: var(--mono); font-weight: 600; font-size: 8.4px; fill: var(--ink); }
+.r-col, .r-key { font-family: var(--mono); font-size: 7.2px; fill: var(--ink); }
+.r-key { font-weight: 600; }
+.r-type { font-family: var(--mono); font-size: 6.4px; fill: var(--muted); }
+.r-pk { font-family: var(--mono); font-weight: 600; font-size: 5.6px; fill: var(--accent); }
+.r-more { font-family: var(--mono); font-style: italic; font-size: 6.6px; fill: var(--muted); }
+.rel { fill: none; stroke: var(--ink-2); stroke-width: 0.8; }
+.rel-o { fill: #FFFFFF; stroke: var(--ink-2); stroke-width: 0.8; }
+.legend { fill: var(--desk); stroke: var(--line-strong); stroke-width: 0.6; }
+.lg-h { font-family: var(--mono); font-weight: 500; font-size: 6.4px; letter-spacing: 1px; fill: var(--accent); }
+.lg-t { font-family: var(--font); font-size: 7px; fill: var(--ink-2); }
+.lg-m { font-family: var(--mono); font-size: 6.6px; fill: var(--ink); }
+.sm-fig { margin: 3mm 0 4mm; }
+svg.sm { width: 100%; height: auto; display: block; }
+.st { fill: #FFFFFF; stroke: var(--ink); stroke-width: 0.8; }
+.st.ok { fill: var(--ai-soft); stroke: var(--ai); }
+.st.bad { fill: var(--accent-soft); stroke: var(--accent); }
+.st-l { font-family: var(--font); font-weight: 650; font-size: 8px; fill: var(--ink); }
+.st-c { font-family: var(--mono); font-size: 6.8px; fill: var(--muted); }
+.tr { fill: none; stroke: var(--ink-2); stroke-width: 0.9; }
+.tr.dash { stroke-dasharray: 3 2.4; stroke: var(--accent); }
+.arrow { fill: var(--ink-2); }
+.tr-l { font-family: var(--mono); font-size: 6.2px; fill: var(--ink-2); }
+.dot { fill: var(--ink); }
+
+/* ---------- Fichas de catálogo ---------- */
+.card { margin: 0 0 9mm; border-top: 1.2pt solid var(--ink); }
+.card + .card { break-before: auto; }
+.card-head { border-left: 3pt solid var(--c); padding: 2.4mm 0 1mm 3.5mm; margin: 0 0 1mm; background: linear-gradient(to right, var(--desk), #FFFFFF 70%); break-inside: avoid; break-after: avoid; }
+.card-meta { display: flex; align-items: center; gap: 2mm; margin-bottom: 1mm; }
+.card-meta .cat { font: 600 6.4pt var(--mono); letter-spacing: .12em; color: var(--accent); }
+.card-meta .cols { margin-left: auto; font: 400 6.4pt var(--mono); color: var(--muted); padding-right: 2mm; }
+.tname { font-family: var(--mono); font-weight: 600; font-size: 13pt; letter-spacing: -0.01em; margin: 0.6mm 0 1.4mm; }
+.tdesc { margin: 0 0 1mm; font-size: 9pt; }
+.refs { font-size: 7.6pt; color: var(--ink-2); margin: 0 0 1mm; }
+.cols-t { font-size: 7.8pt; margin-top: 1mm; }
+.cols-t td { padding: 1.25mm 1.6mm; }
+.cols-t th { padding: 1.4mm 1.6mm; }
+.c-col { width: 27%; white-space: nowrap; }
+.c-type { width: 15%; white-space: nowrap; }
+.c-null { width: 6%; font-size: 7.4pt; color: var(--muted); }
+.c-null .nul { color: var(--accent); font-weight: 600; }
+.c-def { width: 9%; white-space: nowrap; }
+.cols-t code, .idx-t code { background: none; padding: 0; }
+.cols-t code.col { font-weight: 600; color: var(--ink); font-size: 0.95em; }
+.c-type code, .c-def code { color: var(--ink-2); }
+.k { display: inline-block; font: 600 5.6pt var(--mono); letter-spacing: .06em; padding: 0.2mm 0.9mm; margin-left: 1.2mm; border-radius: 1px; vertical-align: 0.15em; }
+.k-pk { background: var(--ink); color: #FFFFFF; }
+.k-fk { background: var(--c); color: var(--ink); }
+.k-uk { border: 0.5pt solid var(--ink); color: var(--ink); }
+.card-sub { margin: 2.5mm 0 0.5mm; color: var(--ink-2); break-after: avoid; }
+.idx-t { font-size: 7.4pt; margin-bottom: 2mm; }
+.idx-t td { padding: 1.1mm 1.6mm; }
+.idx-t td:first-child { width: 37%; }
+.idx-t td:nth-child(2) { width: 33%; }
+.checks { font-size: 7.8pt; color: var(--ink-2); margin: 1mm 0 2mm; }
+.checks .eyebrow { margin-right: 1.5mm; color: var(--accent); }
+.json { break-inside: avoid; margin-bottom: 1mm; }
+.json-h { font-size: 7.6pt; color: var(--ink-2); margin: 1.4mm 0 0.6mm; }
+.json-h code { font-weight: 600; margin-right: 2mm; }
+.json pre { margin: 0 0 1.5mm; font-size: 7.2pt; padding: 2mm 3mm; }
+
+/* ---------- Diversos ---------- */
+ol.steps { list-style: none; counter-reset: s; padding-left: 0; }
+ol.steps > li { counter-increment: s; position: relative; padding-left: 8mm; margin-bottom: 1.8mm; }
+ol.steps > li::before { content: counter(s, decimal-leading-zero); position: absolute; left: 0; top: 0.2mm; font: 600 7pt var(--mono); color: var(--accent); }
+h4 { break-after: avoid; }
+h4 + pre { margin-top: 1mm; }
+table.dict td:first-child, table.redis td:first-child { white-space: nowrap; }
+.hist td:first-child { white-space: nowrap; font-weight: 600; }
+.colophon { margin-top: 14mm; border-top: 0.6pt solid var(--line-strong); padding-top: 3mm; font-size: 8pt; color: var(--ink-2); }
+.note ul { margin: 1mm 0 0; }

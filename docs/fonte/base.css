@@ -1,0 +1,101 @@
+/* Lume para Windows — base tipográfica dos manuais em PDF (WeasyPrint).
+   As fontes vêm da própria interface (src/main/resources/static/fonts) e das capas geradas (src/main/resources/capas).
+   Mesma identidade da interface: Creme como "mesa", tinta escura para o texto,
+   Rosé tinta como cor de assinatura e as cores da paleta como etiquetas de catálogo. */
+@font-face { font-family: "Public Sans"; font-weight: 100 900; src: url("../../src/main/resources/static/fonts/public-sans-latin-wght-normal.woff2"); }
+@font-face { font-family: "Public Sans"; font-weight: 100 900; src: url("../../src/main/resources/static/fonts/public-sans-latin-ext-wght-normal.woff2"); unicode-range: U+0100-02BA, U+1E00-1E9F, U+20A0-20C0; }
+@font-face { font-family: "Literata"; font-weight: 400; src: url("../../src/main/resources/static/fonts/literata-latin-wght-normal.woff2"); }
+@font-face { font-family: "Literata"; font-weight: 600; src: url("../../src/main/resources/capas/Literata-SemiBold.ttf"); }
+@font-face { font-family: "Literata"; font-style: italic; font-weight: 400; src: url("../../src/main/resources/capas/Literata-Italic.ttf"); }
+@font-face { font-family: "Plex Mono"; font-weight: 400; src: url("../../src/main/resources/static/fonts/ibm-plex-mono-latin-400-normal.woff2"); }
+@font-face { font-family: "Plex Mono"; font-weight: 500; src: url("../../src/main/resources/static/fonts/ibm-plex-mono-latin-500-normal.woff2"); }
+@font-face { font-family: "Plex Mono"; font-weight: 600; src: url("../../src/main/resources/static/fonts/ibm-plex-mono-latin-600-normal.woff2"); }
+@font-face { font-family: "Plex Mono"; font-style: italic; font-weight: 400; src: url("../../src/main/resources/static/fonts/ibm-plex-mono-latin-400-italic.woff2"); }
+
+:root {
+  /* Paleta de identidade */
+  --creme: #F4F1DE; --camurca: #B0A08C; --salvia: #B8C9A9; --ardosia: #8395A7; --rose: #D8A7B1;
+  /* Papéis */
+  --paper: #FFFFFF; --desk: #F4F1DE; --desk-2: #ECE7CF;
+  --ink: #1E252C; --ink-2: #3B4651; --muted: #66707A;
+  --line: #E4DECA; --line-strong: #C9BFA8;
+  --accent: #9C4A5B;           /* Rosé tinta — assinatura */
+  --accent-soft: #F6E8EB;
+  --ai: #556B47; --ai-soft: #EDF2E6;
+  --warn: #8A6A1F; --warn-soft: #F7F0DC;
+  --font: "Public Sans", sans-serif;
+  --serif: "Literata", Georgia, serif;
+  --mono: "Plex Mono", "DejaVu Sans Mono", monospace;
+}
+
+@page {
+  size: A4;
+  margin: 22mm 20mm 22mm 24mm;
+  @top-left { content: string(doc-title); font: 500 6.6pt var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); vertical-align: bottom; padding-bottom: 4mm; }
+  @top-right { content: string(chapter); font: 500 6.6pt var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); vertical-align: bottom; padding-bottom: 4mm; }
+  @bottom-left { content: "Lume · " string(doc-version); font: 400 6.6pt var(--mono); color: var(--muted); }
+  @bottom-right { content: counter(page, decimal-leading-zero); font: 600 7.5pt var(--mono); color: var(--ink); }
+}
+@page :first { margin: 0; @top-left { content: none; } @top-right { content: none; } @bottom-left { content: none; } @bottom-right { content: none; } }
+@page chapter { @top-right { content: none; } }
+
+html { font-family: var(--font); font-size: 9.4pt; line-height: 1.55; color: var(--ink); }
+body { margin: 0; }
+.doc-title { string-set: doc-title content(); }
+.doc-version { string-set: doc-version content(); }
+/* Fora da página, mas ainda no fluxo: com display:none o WeasyPrint não captura o texto. */
+.doc-title, .doc-version { position: absolute; left: -200mm; top: 0; font-size: 1pt; color: transparent; }
+
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; color: var(--ink); letter-spacing: -0.01em; line-height: 1.2; break-after: avoid; }
+h2 { font-size: 17pt; margin: 0 0 4mm; string-set: chapter content(); }
+h3 { font-size: 12pt; margin: 7mm 0 2.5mm; }
+h4 { font-family: var(--font); font-size: 9.4pt; font-weight: 650; margin: 5mm 0 1.5mm; }
+p { margin: 0 0 2.6mm; orphans: 3; widows: 3; }
+a { color: var(--accent); text-decoration: none; }
+strong { font-weight: 650; }
+code, kbd, .mono { font-family: var(--mono); font-size: 0.86em; }
+code { background: var(--desk); padding: 0.05em 0.3em; border-radius: 2px; color: var(--ink); }
+kbd { border: 0.6pt solid var(--line-strong); border-bottom-width: 1.2pt; border-radius: 2px; padding: 0 0.35em; background: #fff; }
+pre { font-family: var(--mono); font-size: 7.6pt; line-height: 1.5; background: var(--desk); border-left: 2pt solid var(--accent); padding: 3mm 4mm; margin: 2mm 0 4mm; white-space: pre-wrap; break-inside: avoid; }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { margin: 0 0 3mm; padding-left: 5mm; }
+li { margin-bottom: 1.2mm; }
+li::marker { color: var(--accent); }
+
+/* Abertura de capítulo */
+.chapter { page: chapter; break-before: page; }
+.chapter-head { border-top: 1.2pt solid var(--ink); padding-top: 3mm; margin-bottom: 7mm; }
+.chapter-head .num { font: 500 7pt var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.chapter-head h2 { font-size: 24pt; margin: 2mm 0 2mm; }
+.chapter-head .lede { font-family: var(--serif); font-size: 11pt; line-height: 1.5; color: var(--ink-2); max-width: 135mm; }
+
+/* Rótulo de seção (estilo ficha de catálogo) */
+.eyebrow { font: 500 6.8pt var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* Tabelas */
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 5mm; font-size: 8.2pt; line-height: 1.4; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; }
+th { font: 500 6.6pt var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 1.6mm 2mm; border-bottom: 0.9pt solid var(--ink); }
+td { padding: 1.6mm 2mm; border-bottom: 0.5pt solid var(--line); vertical-align: top; }
+td code { font-size: 0.92em; }
+
+/* Notas */
+.note { border-left: 2pt solid var(--ardosia); background: #F3F5F7; padding: 2.5mm 4mm; margin: 3mm 0 4mm; break-inside: avoid; }
+.note.tip { border-color: var(--ai); background: var(--ai-soft); }
+.note.warn { border-color: #B8872B; background: var(--warn-soft); }
+.note .eyebrow { display: block; margin-bottom: 1mm; color: var(--ink-2); }
+
+/* Figuras */
+figure { margin: 3mm 0 5mm; break-inside: avoid; }
+figure img { width: 100%; border: 0.6pt solid var(--line-strong); display: block; }
+figcaption { font-size: 7.6pt; color: var(--muted); margin-top: 1.6mm; }
+figcaption b { font: 500 6.6pt var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-right: 1.5mm; }
+
+/* Sumário */
+.toc ol { list-style: none; padding: 0; margin: 0; }
+.toc li { margin: 0; border-bottom: 0.5pt solid var(--line); padding: 1.4mm 0; }
+.toc li.ch { font-weight: 650; border-bottom: 0.8pt solid var(--ink); padding-top: 3.5mm; }
+.toc li.sub { padding-left: 7mm; color: var(--ink-2); }
+.toc a { color: inherit; }
+.toc a::after { content: target-counter(attr(href), page, decimal-leading-zero); float: right; font: 500 7.5pt var(--mono); color: var(--muted); }

@@ -1,0 +1,12 @@
+{
+  "name": "lume-e2e",
+  "private": true,
+  "description": "Teste de interface do Lume (Playwright contra o servidor Spring Boot)",
+  "type": "module",
+  "scripts": {
+    "test": "node run.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

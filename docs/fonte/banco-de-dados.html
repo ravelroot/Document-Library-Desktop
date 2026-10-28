@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Lume para Windows — Banco de dados</title>
+<meta name="author" content="Erik Pimenta e Clara Portes">
+<meta name="description" content="Diagrama de relacionamentos, dicionário de dados, busca FTS5, integridade, consultas, backup e manutenção do SQLite do Lume para Windows 2.1.0.">
+<meta name="generator" content="Lume">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="banco-de-dados.css">
+</head>
+<body>
+<span class="doc-title">Banco de dados · Lume para Windows</span><span class="doc-version">versão 2.1.0 · outubro de 2026</span>
+
+<!-- ============================================================ CAPA -->
+<section class="cover">
+  <div class="cv-top">
+    <span>LUME · DOC-02 · v2.1.0</span>
+    <span>Ficha de catálogo · referência técnica</span>
+  </div>
+  <div class="cv-main">
+    <img class="cv-logo" src="../images/logo.svg" alt="">
+    <div class="cv-kicker">Lume para Windows · biblioteca de PDF e DOCX</div>
+    <h1 class="cv-title">Lume</h1>
+    <div class="cv-rule"></div>
+    <div class="cv-sub">Banco de dados</div>
+    <p class="cv-lede">Diagrama de relacionamentos, dicionário de dados, busca em texto completo com FTS5, integridade, consultas das Estatísticas, backup, manutenção e evolução do SQLite embutido no Java.</p>
+  </div>
+  <dl class="cv-card">
+    <div><dt>Esquema</dt><dd>11 tabelas · 1 virtual (FTS5)</dd></div>
+    <div><dt>Banco</dt><dd>SQLite 3.53 · sqlite-jdbc</dd></div>
+    <div><dt>Versão do esquema</dt><dd>user_version 2</dd></div>
+    <div><dt>Edição</dt><dd>2.1.0 · outubro de 2026</dd></div>
+  </dl>
+  <div class="cv-foot">
+    <div class="cv-author">Erik Pimenta e Clara Portes</div>
+    <div class="cv-copy">Copyright © 2026 Erik Pimenta e Clara Portes · Licença MIT</div>
+  </div>
+  <div class="cv-stripe"><i style="background:#F4F1DE"></i><i style="background:#B0A08C"></i><i style="background:#B8C9A9"></i><i style="background:#8395A7"></i><i style="background:#D8A7B1"></i><i style="background:#9C4A5B"></i></div>
+</section>
+
+<!-- ============================================================ SUMÁRIO -->
+<section class="toc-page">
+  <div class="eyebrow">Sumário</div>
+  <h2 class="toc-title">Conteúdo</h2>
+  <nav class="toc">
+    <ol>
+      <li class="ch"><a href="#c-rapida">01 · Visão rápida</a></li>
+      <li class="ch"><a href="#c-geral">02 · Visão geral</a></li>
+      <li class="sub"><a href="#s-porque">Por que SQLite</a></li>
+      <li class="sub"><a href="#s-abertura">Como o banco é aberto</a></li>
+      <li class="sub"><a href="#s-disco">Arquivos na pasta de dados</a></li>
+      <li class="ch"><a href="#c-er">03 · Diagrama de relacionamentos</a></li>
+      <li class="sub"><a href="#s-card">Cardinalidades</a></li>
+      <li class="sub"><a href="#s-conv">Convenções e tipos</a></li>
+      <li class="ch"><a href="#c-tab">04 · Dicionário de dados</a></li>
+      <li class="sub"><a href="#t-documents"><code>documents</code></a></li><li class="sub"><a href="#t-document_content"><code>document_content</code></a></li><li class="sub"><a href="#t-tags"><code>tags</code></a></li><li class="sub"><a href="#t-document_tags"><code>document_tags</code></a></li><li class="sub"><a href="#t-collections"><code>collections</code></a></li><li class="sub"><a href="#t-collection_items"><code>collection_items</code></a></li><li class="sub"><a href="#t-reading_states"><code>reading_states</code></a></li><li class="sub"><a href="#t-annotations"><code>annotations</code></a></li><li class="sub"><a href="#t-jobs"><code>jobs</code></a></li><li class="sub"><a href="#t-settings"><code>settings</code></a></li>
+      <li class="ch"><a href="#c-settings">05 · Preferências e integrações</a></li>
+      <li class="ch"><a href="#c-est">06 · Ciclo de vida e estados</a></li>
+      <li class="ch"><a href="#c-busca">07 · Busca em texto completo</a></li>
+      <li class="sub"><a href="#s-match">Da caixa de busca para o MATCH</a></li>
+      <li class="sub"><a href="#s-rank">Ranking e trecho</a></li>
+      <li class="sub"><a href="#s-parecidos">Parecidos e Pergunte</a></li>
+      <li class="ch"><a href="#c-int">08 · Integridade e transações</a></li>
+      <li class="sub"><a href="#s-lote">Ações em lote</a></li>
+      <li class="ch"><a href="#c-sql">09 · Consultas das Estatísticas e úteis</a></li>
+      <li class="ch"><a href="#c-man">10 · Backup, restauração e manutenção</a></li>
+      <li class="sub"><a href="#s-backup">Backup pelo Lume</a></li>
+      <li class="sub"><a href="#s-restaurar">Restauração e mudança de computador</a></li>
+      <li class="sub"><a href="#s-manut">Manutenção</a></li>
+      <li class="ch"><a href="#c-evo">11 · Evolução do esquema e versão web</a></li>
+      <li class="ch"><a href="#c-hist">12 · Histórico de versões</a></li>
+    </ol>
+  </nav>
+</section>
+
+<!-- ============================================================ 01 -->
+<section class="chapter" id="c-rapida">
+  <div class="chapter-head">
+    <div class="num">Capítulo 01</div>
+    <h2>Visão rápida</h2>
+    <p class="lede">O Lume para Windows guarda tudo num único arquivo SQLite, o <code>lume.db</code>, dentro da pasta de dados. Este manual descreve o esquema, as regras que o banco garante sozinho, a busca, as consultas por trás das telas novas e como fazer backup, verificar e evoluir o banco.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>11</b><span>tabelas</span><small>10 comuns + 1 virtual FTS5</small></div>
+    <div class="stat"><b>92</b><span>colunas</span><small>33 só em documents</small></div>
+    <div class="stat"><b>8</b><span>chaves estrangeiras</span><small>todas ON DELETE CASCADE</small></div>
+    <div class="stat"><b>20</b><span>índices</span><small>10 declarados · 10 de PK/UNIQUE</small></div>
+    <div class="stat"><b>22</b><span>restrições CHECK</span><small>domínios, faixas e json_valid</small></div>
+    <div class="stat"><b>2</b><span>migrações</span><small>PRAGMA user_version = 2</small></div>
+    <div class="stat"><b>5</b><span>chaves em settings</span><small>profile · ai · window · watch_folders · webhooks</small></div>
+    <div class="stat"><b>0</b><span>tabelas novas na 2.1.0</span><small>integrações em settings</small></div>
+  </div>
+
+  <h3>Onde cada coisa mora</h3>
+  <div class="where">
+    <div class="w-col" style="--c:#8395A7">
+      <div class="eyebrow">lume.db · fonte da verdade</div>
+      <ul>
+        <li>Documentos, metadados, sumário, descrição por IA e texto extraído.</li>
+        <li>Índice de busca FTS5.</li>
+        <li>Etiquetas, coleções, estantes, progresso e anotações.</li>
+        <li>Histórico de cada etapa do pipeline.</li>
+        <li>Preferências, chave de IA cifrada, pastas monitoradas e webhooks.</li>
+      </ul>
+    </div>
+    <div class="w-col" style="--c:#B0A08C">
+      <div class="eyebrow">Memória do processo · transporte</div>
+      <ul>
+        <li>Filas de leitura e descrição (<code>ExecutorService</code>).</li>
+        <li>Novas tentativas agendadas (5 s, 15 s, 45 s).</li>
+        <li>Eventos ao vivo (SSE) e envio de webhooks.</li>
+        <li>Agendador das pastas monitoradas e a lista de arquivos já recusados.</li>
+      </ul>
+    </div>
+    <div class="w-col" style="--c:#B8C9A9">
+      <div class="eyebrow">documentos/ · arquivos</div>
+      <ul>
+        <li>Cópia do original, sem alteração.</li>
+        <li>Capa em JPEG.</li>
+        <li>HTML de leitura higienizado e imagens dos DOCX.</li>
+        <li>Importações e backups em andamento em <code>tmp/</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note tip">
+    <span class="eyebrow">Regra de ouro</span>
+    Fechar o Lume no meio de um trabalho não perde dados: o que estava em memória é refeito a partir do banco na próxima abertura. Perder o <code>lume.db</code> ou a pasta <code>documentos/</code> perde dados — por isso o backup da 2.1.0 leva os dois juntos (capítulo 10).
+  </div>
+
+  <h3>Para quem é este documento</h3>
+  <p>Para quem usa, mantém ou desenvolve o Lume: a referência de cada tabela e coluna, as regras que o banco e a aplicação garantem e as tarefas de rotina (consultas, verificação, backup, restauração e migrações). Tipos, nulos e padrões das fichas foram lidos do próprio esquema (<code>Migrations.java</code>), que é a fonte da verdade.</p>
+</section>
+
+<!-- ============================================================ 02 -->
+<section class="chapter" id="c-geral">
+  <div class="chapter-head">
+    <div class="num">Capítulo 02</div>
+    <h2>Visão geral</h2>
+    <p class="lede">Um banco embutido, sem servidor, aberto por uma conexão só e protegido por restrições: é o suficiente para uma biblioteca pessoal e cabe num pendrive.</p>
+  </div>
+
+  <h3 id="s-porque">Por que SQLite</h3>
+  <ul>
+    <li><strong>Zero instalação</strong>: o SQLite vem dentro do próprio Lume, no driver JDBC <code>sqlite-jdbc</code> 3.53 (Xerial), que já traz o motor compilado com FTS5 e JSON. Não há servidor, porta nem senha.</li>
+    <li><strong>Um usuário, um computador</strong>: o Lume desktop não tem contas nem compartilhamento, então a concorrência é baixa e o SQLite sobra.</li>
+    <li><strong>Portátil</strong>: copiar a pasta de dados (ou um backup em zip) leva a biblioteca inteira para outro computador ou para um pendrive.</li>
+    <li><strong>Busca embutida</strong>: o FTS5 faz a busca em texto completo sem acentos, com ranking BM25 e trechos destacados.</li>
+    <li><strong>Compatível</strong>: o esquema é o mesmo desde a versão em Electron (esquema 2). A 2.1.0 não muda o esquema: as integrações ficam na tabela <code>settings</code>.</li>
+  </ul>
+
+  <h3 id="s-abertura">Como o banco é aberto</h3>
+  <p>A classe <code>Database</code> (pacote <code>io.github.ravelroot.lume.db</code>) abre uma conexão JDBC só, <code>jdbc:sqlite:&lt;pasta&gt;/lume.db</code>, e liga o modo de trabalho:</p>
+  <pre><code>PRAGMA journal_mode = WAL;      -- leituras não esperam escritas; grava lume.db-wal ao lado
+PRAGMA synchronous = NORMAL;    -- seguro com WAL e bem mais rápido que FULL
+PRAGMA foreign_keys = ON;       -- o SQLite só aplica chaves estrangeiras com isto ligado
+PRAGMA busy_timeout = 5000;     -- espera até 5 s se o arquivo estiver ocupado</code></pre>
+  <p>Em seguida <code>migrate()</code> compara <code>PRAGMA user_version</code> com a lista <code>Migrations.ALL</code> e aplica as que faltam, cada uma numa transação. Se o banco tiver uma versão maior que a do aplicativo (foi aberto por um Lume mais novo), a abertura é recusada com uma mensagem clara. Ao fechar, o Lume faz <code>PRAGMA wal_checkpoint(TRUNCATE)</code>, devolvendo tudo para o <code>lume.db</code>.</p>
+  <p>As consultas passam pelo <code>JdbcTemplate</code> do Spring, sobre um <code>SingleConnectionDataSource</code>. Uma trava (<code>ReentrantLock</code>) garante que a API, o pipeline, as pastas monitoradas, os webhooks e as ferramentas usem a conexão um de cada vez.</p>
+
+  <h3 id="s-disco">Arquivos na pasta de dados</h3>
+  <table>
+    <thead><tr><th style="width:42%">Caminho</th><th>Conteúdo</th></tr></thead>
+    <tbody>
+      <tr><td><code>lume.db</code></td><td>O banco (fonte da verdade de tudo que não é arquivo)</td></tr>
+      <tr><td><code>lume.db-wal</code> · <code>lume.db-shm</code></td><td>Diário do modo WAL; somem ou ficam vazios quando o Lume fecha</td></tr>
+      <tr><td><code>documentos/&lt;id&gt;/original.pdf|docx</code></td><td>Cópia do arquivo importado</td></tr>
+      <tr><td><code>documentos/&lt;id&gt;/capa.jpg</code></td><td>Capa (primeira página ou capa tipográfica)</td></tr>
+      <tr><td><code>documentos/&lt;id&gt;/leitura.html</code> · <code>media/</code></td><td>HTML de leitura higienizado e imagens dos DOCX</td></tr>
+      <tr><td><code>tmp/</code></td><td>Cópias em andamento durante a importação e o instantâneo do banco durante o backup</td></tr>
+      <tr><td><code>lume.lock</code> · <code>instancia.json</code></td><td>Trava de instância única e porta/chave do Lume aberto</td></tr>
+      <tr><td><code>lume.log</code></td><td>Registro do aplicativo (inclui as pastas monitoradas e os webhooks)</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><span class="eyebrow">Banco e arquivos andam juntos</span>O <code>id</code> do documento é o nome da pasta em <code>documentos/</code>. Ao excluir um documento (sozinho ou em lote), o Lume apaga a linha (e, em cascata, tudo que depende dela) e depois a pasta. Nunca apague pastas à mão com o Lume aberto; para limpar sobras, use <strong>Ferramentas → Limpar sobras</strong>.</div>
+</section>
+
+<!-- ============================================================ 03 -->
+<section class="chapter" id="c-er">
+  <div class="chapter-head">
+    <div class="num">Capítulo 03</div>
+    <h2>Diagrama de relacionamentos</h2>
+    <p class="lede">As 11 tabelas giram em torno de <code>documents</code>. Todas as chaves estrangeiras usam <code>ON DELETE CASCADE</code>: apagar um documento apaga o texto, a leitura, as anotações, as etiquetas ligadas, os itens de coleção e o histórico de etapas.</p>
+  </div>
+  <p>O pé de galinha fica do lado “muitos” e o traço duplo do lado “um”. Cada caixa mostra as colunas principais; as fichas do capítulo 04 trazem todas. A faixa colorida indica a área: <span class="chip" style="--c:#8395A7">Acervo</span> <span class="chip" style="--c:#D8A7B1">Organização</span> <span class="chip" style="--c:#B8C9A9">Leitura</span> <span class="chip" style="--c:#B0A08C">Sistema</span>. A tabela virtual <code>documents_fts</code> não tem chave estrangeira: a ligação é mantida pela aplicação.</p>
+  <figure class="er-fig">
+    <svg class="er" viewBox="0 0 604 592" xmlns="http://www.w3.org/2000/svg"><path d="M176,147 H204 V48 H218" fill="none" stroke="#3B4651" stroke-width="0.8"/><path d="M184,147 L176,142.5 M184,147 L176,147 M184,147 L176,151.5" fill="none" stroke="#3B4651" stroke-width="0.8"/><line x1="187" y1="143" x2="187" y2="151" stroke="#3B4651" stroke-width="0.8"/><line x1="213" y1="44" x2="213" y2="52" stroke="#3B4651" stroke-width="0.8"/><line x1="210" y1="44" x2="210" y2="52" stroke="#3B4651" stroke-width="0.8"/><path d="M126,118 V87.0" fill="none" stroke="#3B4651" stroke-width="0.8"/><path d="M126,110 L121.5,118 M126,110 L126,118 M126,110 L130.5,118" fill="none" stroke="#3B4651" stroke-width="0.8"/><line x1="122" y1="107" x2="130" y2="107" stroke="#3B4651" stroke-width="0.8"/><line x1="122" y1="92.0" x2="130" y2="92.0" stroke="#3B4651" stroke-width="0.8"/><line x1="122" y1="95.0" x2="130" y2="95.0" stroke="#3B4651" stroke-width="0.8"/><path d="M126,366 V327.5" fill="none" stroke="#3B4651" stroke-width="0.8"/><path d="M126,358 L121.5,366 M126,358 L126,366 M126,358 L130.5,366" fill="none" stroke="#3B4651" stroke-width="0.8"/><line x1="122" y1="355" x2="130" y2="355" stroke="#3B4651" stroke-width="0.8"/><line x1="122" y1="332.5" x2="130" y2="332.5" stroke="#3B4651" stroke-width="0.8"/><line x1="122" y1="335.5" x2="130" y2="335.5" stroke="#3B4651" stroke-width="0.8"/><path d="M176,407.5 H194 V72 H218" fill="none" stroke="#3B4651" stroke-width="0.8"/><path d="M184,407.5 L176,403.0 M184,407.5 L176,407.5 M184,407.5 L176,412.0" fill="none" stroke="#3B4651" stroke-width="0.8"/><line x1="187" y1="403.5" x2="187" y2="411.5" stroke="#3B4651" stroke-width="0.8"/><line x1="213" y1="68" x2="213" y2="76" stroke="#3B4651" stroke-width="0.8"/><line x1="210" y1="68" x2="210" y2="76" stroke="#3B4651" stroke-width="0.8"/><path d="M430,37 H400 V30 H390" fill="none" stroke="#3B4651" stroke-width="0.8"/><line x1="425" y1="33" x2="425" y2="41" stroke="#3B4651" stroke-width="0.8"/><line x1="422" y1="33" x2="422" y2="41" stroke="#3B4651" stroke-width="0.8"/><line x1="395" y1="26" x2="395" y2="34" stroke="#3B4651" stroke-width="0.8"/><line x1="398" y1="26" x2="398" y2="34" stroke="#3B4651" stroke-width="0.8"/><path d="M430,137 H408 V70 H390" fill="none" stroke="#3B4651" stroke-width="0.8"/><line x1="425" y1="133" x2="425" y2="141" stroke="#3B4651" stroke-width="0.8"/><line x1="422" y1="133" x2="422" y2="141" stroke="#3B4651" stroke-width="0.8"/><line x1="395" y1="66" x2="395" y2="74" stroke="#3B4651" stroke-width="0.8"/><line x1="398" y1="66" x2="398" y2="74" stroke="#3B4651" stroke-width="0.8"/><path d="M430,319.5 H416 V100 H390" fill="none" stroke="#3B4651" stroke-width="0.8"/><path d="M422,319.5 L430,315.0 M422,319.5 L430,319.5 M422,319.5 L430,324.0" fill="none" stroke="#3B4651" stroke-width="0.8"/><line x1="419" y1="315.5" x2="419" y2="323.5" stroke="#3B4651" stroke-width="0.8"/><line x1="395" y1="96" x2="395" y2="104" stroke="#3B4651" stroke-width="0.8"/><line x1="398" y1="96" x2="398" y2="104" stroke="#3B4651" stroke-width="0.8"/><path d="M430,461.5 H424 V130 H390" fill="none" stroke="#3B4651" stroke-width="0.8"/><path d="M422,461.5 L430,457.0 M422,461.5 L430,461.5 M422,461.5 L430,466.0" fill="none" stroke="#3B4651" stroke-width="0.8"/><line x1="419" y1="457.5" x2="419" y2="465.5" stroke="#3B4651" stroke-width="0.8"/><line x1="395" y1="126" x2="395" y2="134" stroke="#3B4651" stroke-width="0.8"/><line x1="398" y1="126" x2="398" y2="134" stroke="#3B4651" stroke-width="0.8"/><path d="M304.0,249.5 V274" fill="none" stroke="#9C4A5B" stroke-width="0.8" stroke-dasharray="3 2.4"/><text x="309.0" y="264.75" font-family="Plex Mono" font-size="6.2" fill="#9C4A5B">1:1 lógico · refreshSearch()</text><g class="ent"><rect x="6" y="8" width="170" height="79.0" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><rect x="6" y="8" width="170" height="19" fill="#D8A7B1"/><rect x="6" y="8" width="4" height="79.0" fill="#D8A7B1"/><text x="15" y="21" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">tags</text><line x1="6" y1="27" x2="176" y2="27" stroke="#1E252C" stroke-width="0.5"/><text x="15" y="40.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">id</text><text x="152" y="40.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="171" y="40.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK</text><text x="15" y="52.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">name</text><text x="170" y="52.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="15" y="65.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">slug</text><text x="152" y="65.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="171" y="65.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">UK</text><text x="15" y="77.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">created_at</text><text x="170" y="77.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text></g><g class="ent"><rect x="6" y="118" width="170" height="79.0" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><rect x="6" y="118" width="170" height="19" fill="#D8A7B1"/><rect x="6" y="118" width="4" height="79.0" fill="#D8A7B1"/><text x="15" y="131" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">document_tags</text><line x1="6" y1="137" x2="176" y2="137" stroke="#1E252C" stroke-width="0.5"/><text x="15" y="150.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">document_id</text><text x="152" y="150.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="171" y="150.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK·FK</text><text x="15" y="162.5" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">tag_id</text><text x="152" y="162.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="171" y="162.5" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK·FK</text><text x="15" y="175.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">source</text><text x="170" y="175.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="15" y="187.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">created_at</text><text x="170" y="187.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text></g><g class="ent"><rect x="6" y="236" width="170" height="91.5" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><rect x="6" y="236" width="170" height="19" fill="#D8A7B1"/><rect x="6" y="236" width="4" height="91.5" fill="#D8A7B1"/><text x="15" y="249" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">collections</text><line x1="6" y1="255" x2="176" y2="255" stroke="#1E252C" stroke-width="0.5"/><text x="15" y="268.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">id</text><text x="152" y="268.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="171" y="268.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK</text><text x="15" y="280.5" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">name</text><text x="152" y="280.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="171" y="280.5" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">UK</text><text x="15" y="293.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">description</text><text x="170" y="293.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="15" y="305.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">created_at</text><text x="170" y="305.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="15" y="318.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">updated_at</text><text x="170" y="318.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text></g><g class="ent"><rect x="6" y="366" width="170" height="79.0" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><rect x="6" y="366" width="170" height="19" fill="#D8A7B1"/><rect x="6" y="366" width="4" height="79.0" fill="#D8A7B1"/><text x="15" y="379" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">collection_items</text><line x1="6" y1="385" x2="176" y2="385" stroke="#1E252C" stroke-width="0.5"/><text x="15" y="398.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">collection_id</text><text x="152" y="398.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="171" y="398.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK·FK</text><text x="15" y="410.5" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">document_id</text><text x="152" y="410.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="171" y="410.5" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK·FK</text><text x="15" y="423.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">position</text><text x="170" y="423.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="15" y="435.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">added_at</text><text x="170" y="435.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text></g><g class="ent"><rect x="218" y="8" width="172" height="241.5" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><rect x="218" y="8" width="172" height="19" fill="#8395A7"/><rect x="218" y="8" width="4" height="241.5" fill="#8395A7"/><text x="227" y="21" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">documents</text><line x1="218" y1="27" x2="390" y2="27" stroke="#1E252C" stroke-width="0.5"/><text x="227" y="40.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">id</text><text x="366" y="40.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="385" y="40.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK</text><text x="227" y="52.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">title · title_sort</text><text x="384" y="52.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="65.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">author · author_sort</text><text x="384" y="65.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="77.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">description</text><text x="384" y="77.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="90.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">summary · summary_source</text><text x="384" y="90.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="102.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">kind</text><text x="384" y="102.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="115.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">original_name</text><text x="384" y="115.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="127.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">source_path</text><text x="384" y="127.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="140.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">size_bytes</text><text x="384" y="140.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="227" y="152.5" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">sha256</text><text x="366" y="152.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="385" y="152.5" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">UK</text><text x="227" y="165.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">page_count · word_count</text><text x="384" y="165.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="227" y="177.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">language</text><text x="384" y="177.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="190.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">cover_color · cover_version</text><text x="384" y="190.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="202.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">outline · metadata</text><text x="384" y="202.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">JSON</text><text x="227" y="215.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">status · status_detail</text><text x="384" y="215.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="227.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">created_at · processed_at</text><text x="384" y="227.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="227" y="240.0" font-family="Plex Mono" font-style="italic" font-size="6.6" fill="#66707A">… mais 9 colunas (capa, IA, tentativas)</text></g><g class="ent"><rect x="218" y="274" width="172" height="91.5" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8" stroke-dasharray="3 2"/><rect x="218" y="274" width="172" height="19" fill="#8395A7"/><rect x="218" y="274" width="4" height="91.5" fill="#8395A7"/><text x="227" y="287" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">documents_fts</text><text x="385" y="287" font-family="Plex Mono" font-size="6" fill="#1E252C" text-anchor="end">FTS5 · virtual</text><line x1="218" y1="293" x2="390" y2="293" stroke="#1E252C" stroke-width="0.5"/><text x="227" y="306.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">document_id</text><text x="384" y="306.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">UNINDEXED</text><text x="227" y="318.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">title</text><text x="384" y="318.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">peso 10</text><text x="227" y="331.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">author</text><text x="384" y="331.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">peso 5</text><text x="227" y="343.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">extra</text><text x="384" y="343.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">peso 3</text><text x="227" y="356.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">body</text><text x="384" y="356.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">peso 1</text></g><g class="ent"><rect x="218" y="402" width="172" height="66.5" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><rect x="218" y="402" width="172" height="19" fill="#B0A08C"/><rect x="218" y="402" width="4" height="66.5" fill="#B0A08C"/><text x="227" y="415" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">settings</text><line x1="218" y1="421" x2="390" y2="421" stroke="#1E252C" stroke-width="0.5"/><text x="227" y="434.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">key</text><text x="366" y="434.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="385" y="434.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK</text><text x="227" y="446.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">value</text><text x="384" y="446.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">JSON</text><text x="227" y="459.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">updated_at</text><text x="384" y="459.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text></g><g class="ent"><rect x="430" y="8" width="168" height="79.0" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><rect x="430" y="8" width="168" height="19" fill="#8395A7"/><rect x="430" y="8" width="4" height="79.0" fill="#8395A7"/><text x="439" y="21" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">document_content</text><line x1="430" y1="27" x2="598" y2="27" stroke="#1E252C" stroke-width="0.5"/><text x="439" y="40.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">document_id</text><text x="574" y="40.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="593" y="40.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK·FK</text><text x="439" y="52.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">text</text><text x="592" y="52.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="65.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">text_truncated</text><text x="592" y="65.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="439" y="77.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">updated_at</text><text x="592" y="77.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text></g><g class="ent"><rect x="430" y="108" width="168" height="154.0" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><rect x="430" y="108" width="168" height="19" fill="#B8C9A9"/><rect x="430" y="108" width="4" height="154.0" fill="#B8C9A9"/><text x="439" y="121" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">reading_states</text><line x1="430" y1="127" x2="598" y2="127" stroke="#1E252C" stroke-width="0.5"/><text x="439" y="140.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">document_id</text><text x="574" y="140.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="593" y="140.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK·FK</text><text x="439" y="152.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">shelf</text><text x="592" y="152.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="165.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">page</text><text x="592" y="165.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="439" y="177.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">progress</text><text x="592" y="177.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">REAL</text><text x="439" y="190.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">location</text><text x="592" y="190.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">JSON</text><text x="439" y="202.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">favorite</text><text x="592" y="202.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="439" y="215.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">started_at</text><text x="592" y="215.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="227.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">finished_at</text><text x="592" y="227.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="240.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">last_opened_at</text><text x="592" y="240.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="252.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">updated_at</text><text x="592" y="252.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text></g><g class="ent"><rect x="430" y="278" width="168" height="129.0" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><rect x="430" y="278" width="168" height="19" fill="#B8C9A9"/><rect x="430" y="278" width="4" height="129.0" fill="#B8C9A9"/><text x="439" y="291" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">annotations</text><line x1="430" y1="297" x2="598" y2="297" stroke="#1E252C" stroke-width="0.5"/><text x="439" y="310.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">id</text><text x="574" y="310.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="593" y="310.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK</text><text x="439" y="322.5" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">document_id</text><text x="574" y="322.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="593" y="322.5" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">FK</text><text x="439" y="335.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">kind</text><text x="592" y="335.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="347.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">page</text><text x="592" y="347.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="439" y="360.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">anchor</text><text x="592" y="360.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">JSON</text><text x="439" y="372.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">quote · note</text><text x="592" y="372.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="385.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">color</text><text x="592" y="385.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="397.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">created_at · updated_at</text><text x="592" y="397.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text></g><g class="ent"><rect x="430" y="420" width="168" height="129.0" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><rect x="430" y="420" width="168" height="19" fill="#B0A08C"/><rect x="430" y="420" width="4" height="129.0" fill="#B0A08C"/><text x="439" y="433" font-family="Plex Mono" font-weight="600" font-size="8.4" fill="#1E252C">jobs</text><line x1="430" y1="439" x2="598" y2="439" stroke="#1E252C" stroke-width="0.5"/><text x="439" y="452.0" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">id</text><text x="574" y="452.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="593" y="452.0" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">PK</text><text x="439" y="464.5" font-family="Plex Mono" font-weight="600" font-size="7.2" fill="#1E252C">document_id</text><text x="574" y="464.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="593" y="464.5" font-family="Plex Mono" font-weight="600" font-size="5.6" fill="#9C4A5B" text-anchor="end">FK</text><text x="439" y="477.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">stage</text><text x="592" y="477.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="489.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">status</text><text x="592" y="489.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="502.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">attempt</text><text x="592" y="502.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="439" y="514.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">started_at · finished_at</text><text x="592" y="514.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT</text><text x="439" y="527.0" font-family="Plex Mono" font-size="7.2" fill="#1E252C">duration_ms</text><text x="592" y="527.0" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">INTEGER</text><text x="439" y="539.5" font-family="Plex Mono" font-size="7.2" fill="#1E252C">error · details</text><text x="592" y="539.5" font-family="Plex Mono" font-size="6.4" fill="#66707A" text-anchor="end">TEXT · JSON</text></g><rect x="6" y="474" width="170" height="112" fill="#F4F1DE" stroke="#C9BFA8" stroke-width="0.6"/><text x="14" y="487" font-family="Plex Mono" font-weight="500" font-size="6.4" letter-spacing="1" fill="#9C4A5B">LEGENDA</text><line x1="16" y1="501" x2="44" y2="501" stroke="#3B4651" stroke-width="0.8"/><path d="M24,501 L16,496.5 M24,501 L16,501 M24,501 L16,505.5" fill="none" stroke="#3B4651" stroke-width="0.8"/><line x1="27" y1="497" x2="27" y2="505" stroke="#3B4651" stroke-width="0.8"/><line x1="39" y1="497" x2="39" y2="505" stroke="#3B4651" stroke-width="0.8"/><line x1="36" y1="497" x2="36" y2="505" stroke="#3B4651" stroke-width="0.8"/><text x="52" y="503.5" font-family="Public Sans" font-size="7" fill="#3B4651">muitos para um (N:1)</text><line x1="16" y1="516" x2="44" y2="516" stroke="#3B4651" stroke-width="0.8"/><line x1="21" y1="512" x2="21" y2="520" stroke="#3B4651" stroke-width="0.8"/><line x1="24" y1="512" x2="24" y2="520" stroke="#3B4651" stroke-width="0.8"/><line x1="39" y1="512" x2="39" y2="520" stroke="#3B4651" stroke-width="0.8"/><line x1="36" y1="512" x2="36" y2="520" stroke="#3B4651" stroke-width="0.8"/><text x="52" y="518.5" font-family="Public Sans" font-size="7" fill="#3B4651">um para um (1:1)</text><line x1="16" y1="531" x2="44" y2="531" stroke="#9C4A5B" stroke-width="0.8" stroke-dasharray="3 2.4"/><text x="52" y="533.5" font-family="Public Sans" font-size="7" fill="#3B4651">ligação lógica (sem FK)</text><rect x="16" y="539" width="8" height="8" fill="#8395A7"/><text x="27" y="546" font-family="Plex Mono" font-size="6" fill="#1E252C">acervo</text><rect x="90" y="539" width="8" height="8" fill="#D8A7B1"/><text x="101" y="546" font-family="Plex Mono" font-size="6" fill="#1E252C">organização</text><rect x="16" y="550" width="8" height="8" fill="#B8C9A9"/><text x="27" y="557" font-family="Plex Mono" font-size="6" fill="#1E252C">leitura</text><rect x="90" y="550" width="8" height="8" fill="#B0A08C"/><text x="101" y="557" font-family="Plex Mono" font-size="6" fill="#1E252C">sistema</text><text x="16" y="571" font-family="Plex Mono" font-size="6" fill="#66707A">ON DELETE CASCADE em todas as FKs</text></svg>
+    <figcaption><b>Figura 1</b>Diagrama de relacionamentos do <code>lume.db</code> (esquema 2, sem mudanças na 2.1.0).</figcaption>
+  </figure>
+
+  <h3 id="s-card">Cardinalidades</h3>
+  <table>
+    <thead><tr><th style="width:36%">Relação</th><th style="width:14%">Tipo</th><th>Leitura</th></tr></thead>
+    <tbody>
+      <tr><td><code>documents</code> → <code>document_content</code></td><td>1 : 0..1</td><td>O texto é criado na leitura; documentos na fila ainda não têm.</td></tr>
+      <tr><td><code>documents</code> → <code>reading_states</code></td><td>1 : 0..1</td><td>Criado na primeira interação (abrir, estante, favorito).</td></tr>
+      <tr><td><code>documents</code> → <code>annotations</code></td><td>1 : N</td><td>Destaques, notas e marcadores.</td></tr>
+      <tr><td><code>documents</code> → <code>jobs</code></td><td>1 : N</td><td>Uma linha por etapa e tentativa.</td></tr>
+      <tr><td><code>documents</code> ↔ <code>tags</code></td><td>N : N</td><td>Por <code>document_tags</code>, com a origem (IA ou pessoa).</td></tr>
+      <tr><td><code>documents</code> ↔ <code>collections</code></td><td>N : N</td><td>Por <code>collection_items</code>, com a posição.</td></tr>
+      <tr><td><code>documents</code> → <code>documents_fts</code></td><td>1 : 1 lógico</td><td>Mantido por <code>SearchService.refreshSearch</code> na mesma transação.</td></tr>
+      <tr><td><code>settings.watch_folders[].collection</code> → <code>collections.id</code></td><td>N : 0..1 lógico</td><td>Validado pela aplicação; uma coleção apagada deixa a pasta sem destino.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s-conv">Convenções e tipos</h3>
+  <ul>
+    <li><strong>Datas</strong>: texto ISO 8601 em UTC (<code>2026-10-27T13:00:00.315Z</code>, gerado por <code>Times.now()</code>), que ordena corretamente como texto e permite <code>substr(created_at, 1, 7)</code> para agrupar por mês.</li>
+    <li><strong>Booleanos</strong>: <code>INTEGER</code> 0 ou 1 com <code>CHECK</code>.</li>
+    <li><strong>JSON</strong>: campos estruturados (sumário, metadados, posição de leitura, âncora, detalhes da etapa, preferências) são texto validado com <code>CHECK (json_valid(...))</code>, lidos com o Jackson e consultados com <code>json_extract</code>.</li>
+    <li><strong>Identificadores</strong>: UUID v4 em <code>TEXT</code> para documentos, coleções e anotações; <code>INTEGER PRIMARY KEY</code> (rowid) para etiquetas e etapas.</li>
+    <li><strong>Nomes</strong>: tabelas no plural, colunas em <code>snake_case</code>, índices <code>&lt;tabela&gt;_&lt;coluna&gt;</code>.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ 04 -->
+<section class="chapter" id="c-tab">
+  <div class="chapter-head">
+    <div class="num">Capítulo 04</div>
+    <h2>Dicionário de dados</h2>
+    <p class="lede">Uma ficha por tabela, coluna por coluna, com as regras que o banco aplica e as que a aplicação garante.</p>
+  </div>
+  <p class="small">¹ Chaves primárias de texto: por compatibilidade histórica, o SQLite aceitaria <code>NULL</code> nelas; a aplicação sempre grava um valor (UUID, chave de preferência ou o id do documento). Índices automáticos de <code>PRIMARY KEY</code> e <code>UNIQUE</code> aparecem com esses nomes.</p>
+<article class="card" id="t-documents" style="--c:#8395A7">
+  <header class="card-head">
+    <div class="card-meta"><span class="cat">FICHA 01</span><span class="chip" style="--c:#8395A7">Acervo</span><span class="cols">33 colunas · 4 índices</span></div>
+    <h3 class="tname">documents</h3>
+    <p class="tdesc">Um arquivo importado: identidade, metadados, capa, sumário, descrição por IA e estado no pipeline. É o centro do esquema; tudo o mais aponta para ele e é apagado junto.</p>
+    <p class="refs">Referenciada por <code>document_content</code>, <code>document_tags</code>, <code>collection_items</code>, <code>reading_states</code>, <code>annotations</code> e <code>jobs</code> (todas com <code>ON DELETE CASCADE</code>).</p>
+  </header>
+  <table class="cols-t">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody><tr><td class="c-col"><code class="col">id</code><span class="k k-pk">PK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não¹</td><td class="c-def">—</td><td>UUID v4 gerado na importação; também é o nome da pasta em <code>documentos/</code>.</td></tr><tr><td class="c-col"><code class="col">title</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Título (até 300). Vem dos metadados bons do arquivo ou do nome do arquivo.</td></tr><tr><td class="c-col"><code class="col">title_sort</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Título minúsculo e sem acentos: ordenação e busca por trecho do título (<code>LIKE</code>).</td></tr><tr><td class="c-col"><code class="col">author</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Autor (até 200).</td></tr><tr><td class="c-col"><code class="col">author_sort</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Autor normalizado, para ordenar.</td></tr><tr><td class="c-col"><code class="col">description</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Descrição escrita pela pessoa (até 5000).</td></tr><tr><td class="c-col"><code class="col">metadata_locked</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def"><code>0</code></td><td>1 depois que a pessoa edita título ou autor: a releitura não sobrescreve.</td></tr><tr><td class="c-col"><code class="col">summary</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Descrição por IA (2 a 3 frases).</td></tr><tr><td class="c-col"><code class="col">summary_source</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Quem escreveu: <code>local</code>, <code>anthropic</code> ou <code>openai</code>.</td></tr><tr><td class="c-col"><code class="col">summary_model</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Modelo usado, quando externo.</td></tr><tr><td class="c-col"><code class="col">summary_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Quando a descrição foi gravada.</td></tr><tr><td class="c-col"><code class="col">kind</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Tipo decidido pelo conteúdo, não pela extensão.</td></tr><tr><td class="c-col"><code class="col">original_name</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Nome do arquivo importado.</td></tr><tr><td class="c-col"><code class="col">source_path</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Caminho de origem (só informativo); as pastas monitoradas o usam para não importar de novo.</td></tr><tr><td class="c-col"><code class="col">size_bytes</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Tamanho do original (até 500 MB por regra da aplicação).</td></tr><tr><td class="c-col"><code class="col">sha256</code><span class="k k-uk">UK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Impressão digital do conteúdo: o mesmo arquivo não entra duas vezes.</td></tr><tr><td class="c-col"><code class="col">page_count</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Páginas (no DOCX, do <code>app.xml</code> ou estimadas).</td></tr><tr><td class="c-col"><code class="col">word_count</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Palavras do texto extraído.</td></tr><tr><td class="c-col"><code class="col">language</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Idioma estimado (<code>pt</code>, <code>en</code>…); alimenta as Estatísticas.</td></tr><tr><td class="c-col"><code class="col">cover_width</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Largura da capa.</td></tr><tr><td class="c-col"><code class="col">cover_height</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Altura da capa.</td></tr><tr><td class="c-col"><code class="col">cover_color</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Cor média da capa (ou o tom da paleta).</td></tr><tr><td class="c-col"><code class="col">cover_generated</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def"><code>0</code></td><td>1 se é a capa tipográfica.</td></tr><tr><td class="c-col"><code class="col">cover_version</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def"><code>0</code></td><td>Sobe a cada capa nova; vai na URL para furar o cache.</td></tr><tr><td class="c-col"><code class="col">has_reader_html</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def"><code>0</code></td><td>1 se existe <code>leitura.html</code> (DOCX).</td></tr><tr><td class="c-col"><code class="col">outline</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>'[]'</code></td><td>Sumário: <code>[{title, page, level, anchor}]</code>, até 500 itens.</td></tr><tr><td class="c-col"><code class="col">metadata</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>'{}'</code></td><td>Assunto, palavras-chave, datas, programa de origem, avisos da leitura.</td></tr><tr><td class="c-col"><code class="col">status</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>'queued'</code></td><td>Etapa do pipeline (capítulo 06).</td></tr><tr><td class="c-col"><code class="col">status_detail</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Mensagem para a pessoa (erro ou nova tentativa).</td></tr><tr><td class="c-col"><code class="col">attempts</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def"><code>0</code></td><td>Tentativas da etapa atual.</td></tr><tr><td class="c-col"><code class="col">created_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Importação; base de “Documentos adicionados” nas Estatísticas.</td></tr><tr><td class="c-col"><code class="col">updated_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Última mudança.</td></tr><tr><td class="c-col"><code class="col">processed_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Primeira vez que ficou pronto.</td></tr></tbody>
+  </table>
+  <div class="eyebrow card-sub">Índices e restrições</div>
+  <table class="idx-t">
+    <thead><tr><th>Nome</th><th>Definição</th><th>Para quê</th></tr></thead>
+    <tbody><tr><td><code>documents_created</code></td><td><code>(created_at DESC)</code></td><td>Ordem padrão da biblioteca.</td></tr><tr><td><code>documents_status</code></td><td><code>(status)</code></td><td>Filtros, recuperação e manutenção.</td></tr><tr><td><code>documents_title_sort</code></td><td><code>(title_sort)</code></td><td>Ordem por título e busca por trecho.</td></tr><tr><td><code>UNIQUE</code></td><td><code>(sha256)</code></td><td>Um arquivo, um documento.</td></tr></tbody>
+  </table>
+  <p class="checks"><span class="eyebrow">Verificações</span> <code>kind IN ('pdf','docx')</code> · <code>size_bytes &gt; 0</code> · <code>status IN ('queued','extracting','describing','ready','failed')</code> · booleanos em 0/1 · <code>json_valid(outline)</code> e <code>json_valid(metadata)</code>.</p>
+</article>
+<article class="card" id="t-document_content" style="--c:#8395A7">
+  <header class="card-head">
+    <div class="card-meta"><span class="cat">FICHA 02</span><span class="chip" style="--c:#8395A7">Acervo</span><span class="cols">4 colunas · 0 índices</span></div>
+    <h3 class="tname">document_content</h3>
+    <p class="tdesc">O texto extraído de um documento, separado para as listagens ficarem leves. É a matéria-prima da busca, do “Pergunte ao documento” e da descrição.</p>
+    <p class="refs">Aponta para <code>document_id → documents.id</code> (1:1).</p>
+  </header>
+  <table class="cols-t">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody><tr><td class="c-col"><code class="col">document_id</code><span class="k k-pk">PK</span><span class="k k-fk">FK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não¹</td><td class="c-def">—</td><td>O documento (um texto por documento).</td></tr><tr><td class="c-col"><code class="col">text</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Texto limpo, até 2.000.000 de caracteres; no PDF as páginas são separadas por <code>\f</code>, o que dá a página de cada trecho do “Pergunte”.</td></tr><tr><td class="c-col"><code class="col">text_truncated</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def"><code>0</code></td><td>1 se o texto passou do limite e foi cortado.</td></tr><tr><td class="c-col"><code class="col">updated_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Última leitura.</td></tr></tbody>
+  </table>
+</article>
+<article class="card" id="t-tags" style="--c:#D8A7B1">
+  <header class="card-head">
+    <div class="card-meta"><span class="cat">FICHA 03</span><span class="chip" style="--c:#D8A7B1">Organização</span><span class="cols">4 colunas · 1 índice</span></div>
+    <h3 class="tname">tags</h3>
+    <p class="tdesc">Uma etiqueta da biblioteca. O <code>slug</code> sem acentos garante uma etiqueta por ideia (<em>programação</em> e <em>programacao</em> são a mesma).</p>
+    <p class="refs">Referenciada por <code>document_tags.tag_id</code>.</p>
+  </header>
+  <table class="cols-t">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody><tr><td class="c-col"><code class="col">id</code><span class="k k-pk">PK</span></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Identificador interno (rowid).</td></tr><tr><td class="c-col"><code class="col">name</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Nome em minúsculas (até 40).</td></tr><tr><td class="c-col"><code class="col">slug</code><span class="k k-uk">UK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Forma sem acentos; filtro <code>?tag=</code> da biblioteca.</td></tr><tr><td class="c-col"><code class="col">created_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Criação.</td></tr></tbody>
+  </table>
+  <div class="eyebrow card-sub">Índices e restrições</div>
+  <table class="idx-t">
+    <thead><tr><th>Nome</th><th>Definição</th><th>Para quê</th></tr></thead>
+    <tbody><tr><td><code>UNIQUE</code></td><td><code>(slug)</code></td><td>Uma etiqueta por ideia.</td></tr></tbody>
+  </table>
+  <p class="checks"><span class="eyebrow">Verificações</span> Etiquetas sem nenhum documento são apagadas na mesma transação que as deixou órfãs.</p>
+</article>
+<article class="card" id="t-document_tags" style="--c:#D8A7B1">
+  <header class="card-head">
+    <div class="card-meta"><span class="cat">FICHA 04</span><span class="chip" style="--c:#D8A7B1">Organização</span><span class="cols">4 colunas · 2 índices</span></div>
+    <h3 class="tname">document_tags</h3>
+    <p class="tdesc">Liga documentos e etiquetas (N:N) e guarda quem sugeriu: a IA ou a pessoa. A ação em lote “Adicionar etiquetas” grava com origem <code>usuario</code> sem apagar as anteriores.</p>
+    <p class="refs">Aponta para <code>document_id → documents.id</code> e <code>tag_id → tags.id</code>.</p>
+  </header>
+  <table class="cols-t">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody><tr><td class="c-col"><code class="col">document_id</code><span class="k k-pk">PK</span><span class="k k-fk">FK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>O documento.</td></tr><tr><td class="c-col"><code class="col">tag_id</code><span class="k k-pk">PK</span><span class="k k-fk">FK</span></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def">—</td><td>A etiqueta.</td></tr><tr><td class="c-col"><code class="col">source</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>'usuario'</code></td><td><code>ia</code> ou <code>usuario</code>: a IA só troca as dela; a edição manual substitui todas.</td></tr><tr><td class="c-col"><code class="col">created_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Quando a ligação foi feita.</td></tr></tbody>
+  </table>
+  <div class="eyebrow card-sub">Índices e restrições</div>
+  <table class="idx-t">
+    <thead><tr><th>Nome</th><th>Definição</th><th>Para quê</th></tr></thead>
+    <tbody><tr><td><code>PRIMARY KEY</code></td><td><code>(document_id, tag_id)</code></td><td>A mesma etiqueta uma vez por documento.</td></tr><tr><td><code>document_tags_tag</code></td><td><code>(tag_id)</code></td><td>Filtro por etiqueta, contagens e “Parecidos”.</td></tr></tbody>
+  </table>
+  <p class="checks"><span class="eyebrow">Verificações</span> <code>source IN ('ia','usuario')</code>. Até 12 etiquetas por documento (aplicação).</p>
+</article>
+<article class="card" id="t-collections" style="--c:#D8A7B1">
+  <header class="card-head">
+    <div class="card-meta"><span class="cat">FICHA 05</span><span class="chip" style="--c:#D8A7B1">Organização</span><span class="cols">5 colunas · 1 índice</span></div>
+    <h3 class="tname">collections</h3>
+    <p class="tdesc">Uma coleção criada pela pessoa. Pode ser o destino de uma pasta monitorada.</p>
+    <p class="refs">Referenciada por <code>collection_items.collection_id</code> (e, por id, por <code>settings.watch_folders</code>).</p>
+  </header>
+  <table class="cols-t">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody><tr><td class="c-col"><code class="col">id</code><span class="k k-pk">PK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não¹</td><td class="c-def">—</td><td>UUID.</td></tr><tr><td class="c-col"><code class="col">name</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Nome (único sem diferenciar maiúsculas).</td></tr><tr><td class="c-col"><code class="col">description</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Até 300 caracteres.</td></tr><tr><td class="c-col"><code class="col">created_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Criação.</td></tr><tr><td class="c-col"><code class="col">updated_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Última mudança.</td></tr></tbody>
+  </table>
+  <div class="eyebrow card-sub">Índices e restrições</div>
+  <table class="idx-t">
+    <thead><tr><th>Nome</th><th>Definição</th><th>Para quê</th></tr></thead>
+    <tbody><tr><td><code>collections_name</code></td><td><code>UNIQUE (lower(name))</code></td><td>Nomes de coleção únicos.</td></tr></tbody>
+  </table>
+  <p class="checks"><span class="eyebrow">Verificações</span> <code>length(trim(name)) &gt; 0</code>.</p>
+</article>
+<article class="card" id="t-collection_items" style="--c:#D8A7B1">
+  <header class="card-head">
+    <div class="card-meta"><span class="cat">FICHA 06</span><span class="chip" style="--c:#D8A7B1">Organização</span><span class="cols">4 colunas · 2 índices</span></div>
+    <h3 class="tname">collection_items</h3>
+    <p class="tdesc">Um documento dentro de uma coleção, com a posição. Um documento pode estar em várias coleções.</p>
+    <p class="refs">Aponta para <code>collection_id → collections.id</code> e <code>document_id → documents.id</code>.</p>
+  </header>
+  <table class="cols-t">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody><tr><td class="c-col"><code class="col">collection_id</code><span class="k k-pk">PK</span><span class="k k-fk">FK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>A coleção.</td></tr><tr><td class="c-col"><code class="col">document_id</code><span class="k k-pk">PK</span><span class="k k-fk">FK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>O documento.</td></tr><tr><td class="c-col"><code class="col">position</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def"><code>0</code></td><td>Ordem na coleção (1, 2, 3…); novos entram no fim.</td></tr><tr><td class="c-col"><code class="col">added_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Desempate da ordem.</td></tr></tbody>
+  </table>
+  <div class="eyebrow card-sub">Índices e restrições</div>
+  <table class="idx-t">
+    <thead><tr><th>Nome</th><th>Definição</th><th>Para quê</th></tr></thead>
+    <tbody><tr><td><code>PRIMARY KEY</code></td><td><code>(collection_id, document_id)</code></td><td>Um documento uma vez por coleção.</td></tr><tr><td><code>collection_items_document</code></td><td><code>(document_id)</code></td><td>Coleções de um documento; exportações.</td></tr></tbody>
+  </table>
+</article>
+<article class="card" id="t-reading_states" style="--c:#B8C9A9">
+  <header class="card-head">
+    <div class="card-meta"><span class="cat">FICHA 07</span><span class="chip" style="--c:#B8C9A9">Leitura</span><span class="cols">10 colunas · 1 índice</span></div>
+    <h3 class="tname">reading_states</h3>
+    <p class="tdesc">O estado de leitura de um documento: estante, página, progresso, favorito e datas. Criado na primeira interação; alimenta o “Continuar lendo”, as Estantes e as Estatísticas.</p>
+    <p class="refs">Aponta para <code>document_id → documents.id</code> (1:1).</p>
+  </header>
+  <table class="cols-t">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody><tr><td class="c-col"><code class="col">document_id</code><span class="k k-pk">PK</span><span class="k k-fk">FK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não¹</td><td class="c-def">—</td><td>Um estado por documento.</td></tr><tr><td class="c-col"><code class="col">shelf</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td><code>''</code>, <code>para_ler</code>, <code>lendo</code> ou <code>lido</code>.</td></tr><tr><td class="c-col"><code class="col">page</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def"><code>1</code></td><td>Página atual (limitada ao total pela aplicação).</td></tr><tr><td class="c-col"><code class="col">progress</code></td><td class="c-type"><code>REAL</code></td><td class="c-null">não</td><td class="c-def"><code>0</code></td><td>Fração lida, de 0 a 1.</td></tr><tr><td class="c-col"><code class="col">location</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>'{}'</code></td><td>Posição no DOCX: <code>{"block": 42}</code>.</td></tr><tr><td class="c-col"><code class="col">favorite</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def"><code>0</code></td><td>Favorito.</td></tr><tr><td class="c-col"><code class="col">started_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Primeira vez em “Lendo”.</td></tr><tr><td class="c-col"><code class="col">finished_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Quando foi para “Lido” (zera ao sair); base de “Leituras concluídas”.</td></tr><tr><td class="c-col"><code class="col">last_opened_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Última abertura no leitor.</td></tr><tr><td class="c-col"><code class="col">updated_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Última mudança.</td></tr></tbody>
+  </table>
+  <div class="eyebrow card-sub">Índices e restrições</div>
+  <table class="idx-t">
+    <thead><tr><th>Nome</th><th>Definição</th><th>Para quê</th></tr></thead>
+    <tbody><tr><td><code>reading_states_recent</code></td><td><code>(last_opened_at DESC)</code></td><td>“Continuar lendo”.</td></tr></tbody>
+  </table>
+  <p class="checks"><span class="eyebrow">Verificações</span> <code>shelf IN ('','para_ler','lendo','lido')</code> · <code>page &gt;= 1</code> · <code>progress BETWEEN 0 AND 1</code> · <code>json_valid(location)</code>.</p>
+</article>
+<article class="card" id="t-annotations" style="--c:#B8C9A9">
+  <header class="card-head">
+    <div class="card-meta"><span class="cat">FICHA 08</span><span class="chip" style="--c:#B8C9A9">Leitura</span><span class="cols">10 colunas · 1 índice</span></div>
+    <h3 class="tname">annotations</h3>
+    <p class="tdesc">Um destaque, nota ou marcador. Exportadas em Markdown por documento e nas notas para Obsidian; cada criação emite <code>annotation.created</code>.</p>
+    <p class="refs">Aponta para <code>document_id → documents.id</code>.</p>
+  </header>
+  <table class="cols-t">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody><tr><td class="c-col"><code class="col">id</code><span class="k k-pk">PK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não¹</td><td class="c-def">—</td><td>UUID.</td></tr><tr><td class="c-col"><code class="col">document_id</code><span class="k k-fk">FK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>O documento.</td></tr><tr><td class="c-col"><code class="col">kind</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td><code>note</code>, <code>highlight</code> ou <code>bookmark</code>; nota exige texto.</td></tr><tr><td class="c-col"><code class="col">page</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Página (PDF) ou nulo (DOCX).</td></tr><tr><td class="c-col"><code class="col">anchor</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>'{}'</code></td><td>PDF: <code>{"rects": [[x, y, w, h]]}</code> em frações da página; DOCX: <code>{"block": n}</code>.</td></tr><tr><td class="c-col"><code class="col">quote</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Trecho destacado (até 4000).</td></tr><tr><td class="c-col"><code class="col">note</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Texto da nota (até 8000).</td></tr><tr><td class="c-col"><code class="col">color</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>'salvia'</code></td><td>Cor de destaque da paleta.</td></tr><tr><td class="c-col"><code class="col">created_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Criação.</td></tr><tr><td class="c-col"><code class="col">updated_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Última edição.</td></tr></tbody>
+  </table>
+  <div class="eyebrow card-sub">Índices e restrições</div>
+  <table class="idx-t">
+    <thead><tr><th>Nome</th><th>Definição</th><th>Para quê</th></tr></thead>
+    <tbody><tr><td><code>annotations_document</code></td><td><code>(document_id, page)</code></td><td>Anotações de um documento em ordem de página.</td></tr></tbody>
+  </table>
+  <p class="checks"><span class="eyebrow">Verificações</span> <code>kind IN ('note','highlight','bookmark')</code> · <code>color IN ('salvia','rose','ardosia','camurca')</code> · <code>json_valid(anchor)</code>. Até 2000 por documento (aplicação).</p>
+</article>
+<article class="card" id="t-jobs" style="--c:#B0A08C">
+  <header class="card-head">
+    <div class="card-meta"><span class="cat">FICHA 09</span><span class="chip" style="--c:#B0A08C">Sistema</span><span class="cols">10 colunas · 2 índices</span></div>
+    <h3 class="tname">jobs</h3>
+    <p class="tdesc">Uma etapa do pipeline (leitura ou descrição) de um documento: o histórico da tela Sistema.</p>
+    <p class="refs">Aponta para <code>document_id → documents.id</code>.</p>
+  </header>
+  <table class="cols-t">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody><tr><td class="c-col"><code class="col">id</code><span class="k k-pk">PK</span></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Identificador (rowid).</td></tr><tr><td class="c-col"><code class="col">document_id</code><span class="k k-fk">FK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>O documento.</td></tr><tr><td class="c-col"><code class="col">stage</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td><code>extract</code> ou <code>describe</code>.</td></tr><tr><td class="c-col"><code class="col">status</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>'running'</code></td><td><code>running</code>, <code>succeeded</code>, <code>retrying</code> ou <code>failed</code>.</td></tr><tr><td class="c-col"><code class="col">attempt</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null">não</td><td class="c-def"><code>1</code></td><td>Número da tentativa.</td></tr><tr><td class="c-col"><code class="col">started_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Início.</td></tr><tr><td class="c-col"><code class="col">finished_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Fim.</td></tr><tr><td class="c-col"><code class="col">duration_ms</code></td><td class="c-type"><code>INTEGER</code></td><td class="c-null"><span class="nul">sim</span></td><td class="c-def">—</td><td>Duração (médias da tela Sistema).</td></tr><tr><td class="c-col"><code class="col">error</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>''</code></td><td>Motivo da falha ou aviso.</td></tr><tr><td class="c-col"><code class="col">details</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def"><code>'{}'</code></td><td>Páginas, palavras, provedor, modelo e se caiu para o resumo local (<code>fallback</code>).</td></tr></tbody>
+  </table>
+  <div class="eyebrow card-sub">Índices e restrições</div>
+  <table class="idx-t">
+    <thead><tr><th>Nome</th><th>Definição</th><th>Para quê</th></tr></thead>
+    <tbody><tr><td><code>jobs_started</code></td><td><code>(started_at DESC)</code></td><td>Últimas etapas.</td></tr><tr><td><code>jobs_document</code></td><td><code>(document_id)</code></td><td>Histórico de um documento.</td></tr></tbody>
+  </table>
+  <p class="checks"><span class="eyebrow">Verificações</span> <code>stage IN ('extract','describe')</code> · <code>status IN (…)</code> · <code>json_valid(details)</code>.</p>
+</article>
+<article class="card" id="t-settings" style="--c:#B0A08C">
+  <header class="card-head">
+    <div class="card-meta"><span class="cat">FICHA 10</span><span class="chip" style="--c:#B0A08C">Sistema</span><span class="cols">3 colunas · 0 índices</span></div>
+    <h3 class="tname">settings</h3>
+    <p class="tdesc">Preferências guardadas como JSON por chave: perfil, IA, janela e, desde a 2.1.0, as pastas monitoradas e os webhooks (capítulo 05).</p>
+    <p class="refs">Sem chaves estrangeiras.</p>
+  </header>
+  <table class="cols-t">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody><tr><td class="c-col"><code class="col">key</code><span class="k k-pk">PK</span></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não¹</td><td class="c-def">—</td><td>Nome da preferência.</td></tr><tr><td class="c-col"><code class="col">value</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Valor em JSON.</td></tr><tr><td class="c-col"><code class="col">updated_at</code></td><td class="c-type"><code>TEXT</code></td><td class="c-null">não</td><td class="c-def">—</td><td>Última gravação.</td></tr></tbody>
+  </table>
+  <p class="checks"><span class="eyebrow">Verificações</span> <code>json_valid(value)</code>.</p>
+</article>
+
+  <article class="card" id="t-documents_fts" style="--c:#8395A7">
+    <header class="card-head">
+      <div class="card-meta"><span class="cat">FICHA 11</span><span class="chip" style="--c:#8395A7">Acervo</span><span class="cols">5 colunas · tabela virtual</span></div>
+      <h3 class="tname">documents_fts</h3>
+      <p class="tdesc">O índice de busca em texto completo (FTS5): uma linha por documento, reconstruída sempre que algo pesquisável muda. Detalhes no capítulo 07.</p>
+      <p class="refs">Ligação lógica com <code>documents.id</code> por <code>document_id</code> (sem chave estrangeira; tabelas virtuais não têm).</p>
+    </header>
+    <table class="cols-t">
+      <thead><tr><th>Coluna</th><th>Tipo</th><th>Nulo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td class="c-col"><code class="col">document_id</code></td><td class="c-type"><code>UNINDEXED</code></td><td class="c-null">—</td><td class="c-def">—</td><td>Liga a linha ao documento; não é pesquisado.</td></tr>
+        <tr><td class="c-col"><code class="col">title</code></td><td class="c-type"><code>texto</code></td><td class="c-null">—</td><td class="c-def">—</td><td>Título (peso 10 no ranking).</td></tr>
+        <tr><td class="c-col"><code class="col">author</code></td><td class="c-type"><code>texto</code></td><td class="c-null">—</td><td class="c-def">—</td><td>Autor (peso 5).</td></tr>
+        <tr><td class="c-col"><code class="col">extra</code></td><td class="c-type"><code>texto</code></td><td class="c-null">—</td><td class="c-def">—</td><td>Descrição por IA, descrição da pessoa e etiquetas (peso 3).</td></tr>
+        <tr><td class="c-col"><code class="col">body</code></td><td class="c-type"><code>texto</code></td><td class="c-null">—</td><td class="c-def">—</td><td>Os primeiros 300.000 caracteres do texto (peso 1).</td></tr>
+      </tbody>
+    </table>
+    <p class="checks"><span class="eyebrow">Tokenizador</span> <code>unicode61 remove_diacritics 2</code>: “reunião”, “reuniao” e “REUNIÃO” são a mesma palavra.</p>
+  </article>
+</section>
+
+<!-- ============================================================ 05 -->
+<section class="chapter" id="c-settings">
+  <div class="chapter-head">
+    <div class="num">Capítulo 05</div>
+    <h2>Preferências e integrações</h2>
+    <p class="lede">A tabela <code>settings</code> guarda um JSON por chave. Na 2.1.0 ela ganhou duas chaves, <code>watch_folders</code> e <code>webhooks</code>, em vez de tabelas novas: são poucas linhas, lidas inteiras, e assim o esquema continua o mesmo.</p>
+  </div>
+  <table>
+    <thead><tr><th style="width:17%">Chave</th><th style="width:22%">Quem grava</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td><code>profile</code></td><td><code>SettingsService</code></td><td><code>{name, theme, reader_prefs: {theme, fontSize}}</code></td></tr>
+      <tr><td><code>ai</code></td><td><code>SettingsService</code></td><td><code>{provider, model, base_url, api_key, timeout_s, max_input_chars}</code>; <code>api_key</code> é <code>dpapi:</code> + Base64 do texto cifrado pelo cofre do Windows</td></tr>
+      <tr><td><code>window</code></td><td><code>DesktopController</code></td><td><code>{x, y, width, height, maximized}</code> da janela</td></tr>
+      <tr><td><code>watch_folders</code> <span class="chip" style="--c:#D8A7B1">2.1.0</span></td><td><code>WatchFolderService</code></td><td>Lista de até 10 pastas monitoradas</td></tr>
+      <tr><td><code>webhooks</code> <span class="chip" style="--c:#D8A7B1">2.1.0</span></td><td><code>WebhookService</code></td><td>Lista de até 10 webhooks; o segredo é cifrado como a chave de IA</td></tr>
+    </tbody>
+  </table>
+
+  <div class="json"><div class="json-h"><code>watch_folders</code>uma pasta por item</div>
+  <pre><code>[{
+  "id": "0b6f2c9e-…",                       // UUID
+  "path": "C:\\Users\\voce\\Downloads",       // pasta absoluta
+  "collection": "5d1a…" ,                   // coleção de destino ou null
+  "enabled": true,                          // false = pausada
+  "last_scan_at": "2026-10-27T13:02:10.512Z",
+  "imported_total": 14,                     // quantos entraram por esta pasta
+  "created_at": "2026-10-27T12:40:01.004Z"
+}]</code></pre></div>
+
+  <div class="json"><div class="json-h"><code>webhooks</code>um endereço por item</div>
+  <pre><code>[{
+  "id": "a3c9…",
+  "url": "https://hooks.slack.com/services/…",
+  "format": "slack",                        // json · slack · discord
+  "events": ["document.ready", "shelf.finished"],
+  "enabled": true,
+  "secret": "dpapi:AQAAANCMnd8B…",           // "" quando não há segredo
+  "last_status": 200, "last_error": null, "last_at": "2026-10-27T13:05:44.120Z",
+  "created_at": "2026-10-27T12:41:30.870Z"
+}]</code></pre></div>
+
+  <p>As duas listas são lidas e regravadas inteiras a cada mudança (<code>INSERT … ON CONFLICT (key) DO UPDATE</code>), dentro da trava da conexão. A API nunca devolve o segredo: <code>GET /api/v1/integrations</code> mostra só <code>has_secret</code>. O que não é guardado de propósito: a lista de arquivos já recusados pelas pastas monitoradas (fica em memória e recomeça a cada abertura) e o histórico de envios dos webhooks (só o último resultado fica salvo).</p>
+  <div class="json"><div class="json-h">Consultar à mão</div>
+  <pre><code>SELECT json_extract(value, '$[0].path'), json_array_length(value) FROM settings WHERE key = 'watch_folders';
+SELECT json_extract(h.value, '$.url'), json_extract(h.value, '$.last_status')
+  FROM settings s, json_each(s.value) h WHERE s.key = 'webhooks';</code></pre></div>
+</section>
+
+<!-- ============================================================ 06 -->
+<section class="chapter" id="c-est">
+  <div class="chapter-head">
+    <div class="num">Capítulo 06</div>
+    <h2>Ciclo de vida e estados</h2>
+    <p class="lede">Três colunas funcionam como pequenas máquinas de estado: o estado do documento, o de cada etapa e a estante. Quem muda o estado do documento é sempre o <code>PipelineService</code>, numa transação, e cada mudança vira um evento para a tela.</p>
+  </div>
+  <figure class="sm-fig"><svg class="sm" viewBox="0 18 600 214" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="89" r="5" fill="#1E252C"/><line x1="15" y1="89" x2="44" y2="89" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="50,89 43.0,92.5 43.0,85.5" fill="#3B4651"/><text x="32" y="82" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">importação</text><rect x="50" y="70" width="92" height="38" rx="3" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><text x="96.0" y="86" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Na fila</text><text x="96.0" y="99" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">queued</text><line x1="142" y1="89" x2="184" y2="89" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="190,89 183.0,92.5 183.0,85.5" fill="#3B4651"/><text x="166" y="103" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">pipeline</text><text x="166" y="112" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">assume</text><rect x="190" y="70" width="104" height="38" rx="3" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><text x="242.0" y="86" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Lendo o documento</text><text x="242.0" y="99" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">extracting</text><line x1="294" y1="89" x2="336" y2="89" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="342,89 335.0,92.5 335.0,85.5" fill="#3B4651"/><text x="318" y="103" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">texto</text><text x="318" y="112" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">gravado</text><rect x="342" y="70" width="116" height="38" rx="3" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><text x="400.0" y="86" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Escrevendo a descrição</text><text x="400.0" y="99" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">describing</text><line x1="458" y1="89" x2="500" y2="89" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="506,89 499.0,92.5 499.0,85.5" fill="#3B4651"/><text x="482" y="103" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">descrição</text><text x="482" y="112" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">salva</text><rect x="506" y="70" width="84" height="38" rx="3" fill="#EDF2E6" stroke="#556B47" stroke-width="0.8"/><text x="548.0" y="86" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Pronto</text><text x="548.0" y="99" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">ready</text><line x1="242" y1="108" x2="242" y2="164" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="242,170 238.5,163.0 245.5,163.0" fill="#3B4651"/><text x="248" y="136" text-anchor="start" font-family="Plex Mono" font-size="6.2" fill="#3B4651">arquivo rejeitado ou</text><text x="248" y="146" text-anchor="start" font-family="Plex Mono" font-size="6.2" fill="#3B4651">3ª falha passageira</text><rect x="194" y="170" width="96" height="38" rx="3" fill="#F6E8EB" stroke="#9C4A5B" stroke-width="0.8"/><text x="242.0" y="186" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Falhou</text><text x="242.0" y="199" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">failed</text><path d="M226,70 C226,34 112,34 112,64" fill="none" stroke="#9C4A5B" stroke-width="0.9" stroke-dasharray="3 2.4"/><polygon points="112,70 108.5,63.0 115.5,63.0" fill="#3B4651"/><text x="169" y="30" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">falha passageira · espera 5 s, 15 s, 45 s</text><path d="M548,70 C548,40 420,40 420,64" fill="none" stroke="#9C4A5B" stroke-width="0.9" stroke-dasharray="3 2.4"/><polygon points="420,70 416.5,63.0 423.5,63.0" fill="#3B4651"/><text x="484" y="36" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">“Gerar de novo” · lote</text><path d="M548,108 V214 H96 V114" fill="none" stroke="#9C4A5B" stroke-width="0.9" stroke-dasharray="3 2.4"/><polygon points="96,108 99.5,115.0 92.5,115.0" fill="#3B4651"/><path d="M194,189 H96" fill="none" stroke="#9C4A5B" stroke-width="0.9" stroke-dasharray="3 2.4"/><text x="420" y="226" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">“Ler o arquivo de novo” · lote · recuperação ao abrir volta queued/extracting para a fila</text></svg><figcaption><b>Figura 2</b>Estados do documento (<code>documents.status</code>). Ao chegar em <code>ready</code>, o pipeline emite <code>document.ready</code>.</figcaption></figure>
+  <table>
+    <thead><tr><th style="width:24%">Transição</th><th style="width:24%">Onde</th><th>O que é gravado</th></tr></thead>
+    <tbody>
+      <tr><td>importação → <code>queued</code></td><td><code>LibraryService.importFile</code></td><td>Linha nova, arquivo em <code>documentos/&lt;id&gt;</code>, entrada no índice de busca; evento <code>document.created</code></td></tr>
+      <tr><td><code>queued</code> → <code>extracting</code></td><td><code>PipelineService.claim</code></td><td><code>attempts + 1</code>; só pega quem está no estado esperado (pedido repetido não faz nada)</td></tr>
+      <tr><td><code>extracting</code> → <code>describing</code></td><td><code>applyExtraction</code></td><td>Páginas, palavras, sumário, metadados, capa (<code>cover_version + 1</code>), texto em <code>document_content</code>, índice de busca</td></tr>
+      <tr><td><code>describing</code> → <code>ready</code></td><td><code>runDescribe</code></td><td>Descrição, origem, modelo, idioma, etiquetas da IA, <code>processed_at</code> na primeira vez; evento <code>document.ready</code></td></tr>
+      <tr><td>falha passageira → <code>queued</code></td><td><code>runExtract</code></td><td><code>status_detail</code> “Nova tentativa em 5 s”; etapa <code>retrying</code></td></tr>
+      <tr><td>falha definitiva → <code>failed</code></td><td><code>fail</code></td><td><code>status_detail</code> com a mensagem; etapa <code>failed</code></td></tr>
+      <tr><td>lote <code>reprocess</code> · <code>redescribe</code></td><td><code>BatchService</code> · <code>ToolsService</code></td><td>Volta para a fila de leitura ou de descrição (inclusive “Descrever tudo de novo”)</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><span class="eyebrow">Recuperação ao abrir</span>Quando o Spring termina de subir (<code>ApplicationReadyEvent</code>), <code>recover()</code> marca como <code>failed</code> as etapas que ficaram <code>running</code>, devolve para a fila de leitura os documentos em <code>queued</code> ou <code>extracting</code> e para a fila de descrição os que estavam em <code>describing</code>.</div>
+  <figure class="sm-fig"><svg class="sm sm-small" viewBox="0 -4 600 146" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="49" r="5" fill="#1E252C"/><line x1="15" y1="49" x2="58" y2="49" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="64,49 57.0,52.5 57.0,45.5" fill="#3B4651"/><text x="38" y="42" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">etapa começa</text><rect x="64" y="30" width="100" height="38" rx="3" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><text x="114.0" y="46" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Rodando</text><text x="114.0" y="59" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">running</text><path d="M164,49 C200,49 205,19 244,19" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="250,19 243.0,22.5 243.0,15.5" fill="#3B4651"/><rect x="250" y="0" width="120" height="38" rx="3" fill="#EDF2E6" stroke="#556B47" stroke-width="0.8"/><text x="310.0" y="16" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Concluída</text><text x="310.0" y="29" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">succeeded</text><text x="380" y="22" text-anchor="start" font-family="Plex Mono" font-size="6.2" fill="#3B4651">ok</text><path d="M164,49 C200,49 205,69 244,69" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="250,69 243.0,72.5 243.0,65.5" fill="#3B4651"/><rect x="250" y="50" width="120" height="38" rx="3" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><text x="310.0" y="66" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Vai tentar de novo</text><text x="310.0" y="79" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">retrying</text><text x="380" y="72" text-anchor="start" font-family="Plex Mono" font-size="6.2" fill="#3B4651">erro passageiro</text><path d="M164,49 C200,49 205,119 244,119" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="250,119 243.0,122.5 243.0,115.5" fill="#3B4651"/><rect x="250" y="100" width="120" height="38" rx="3" fill="#F6E8EB" stroke="#9C4A5B" stroke-width="0.8"/><text x="310.0" y="116" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Falhou</text><text x="310.0" y="129" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">failed</text><text x="380" y="122" text-anchor="start" font-family="Plex Mono" font-size="6.2" fill="#3B4651">erro definitivo</text></svg><figcaption><b>Figura 3</b>Estados de uma etapa (<code>jobs.status</code>).</figcaption></figure>
+  <figure class="sm-fig"><svg class="sm sm-small" viewBox="0 4 600 114" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="40" width="90" height="38" rx="3" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><text x="55.0" y="56" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Sem estante</text><text x="55.0" y="69" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">''</text><line x1="100" y1="59" x2="154" y2="59" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="160,59 153.0,62.5 153.0,55.5" fill="#3B4651"/><text x="130" y="52" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">escolher</text><rect x="160" y="40" width="100" height="38" rx="3" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><text x="210.0" y="56" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Quero ler</text><text x="210.0" y="69" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">para_ler</text><line x1="260" y1="59" x2="314" y2="59" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="320,59 313.0,62.5 313.0,55.5" fill="#3B4651"/><text x="290" y="52" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">abrir no leitor</text><rect x="320" y="40" width="100" height="38" rx="3" fill="#FFFFFF" stroke="#1E252C" stroke-width="0.8"/><text x="370.0" y="56" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Lendo</text><text x="370.0" y="69" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">lendo</text><line x1="420" y1="59" x2="474" y2="59" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="480,59 473.0,62.5 473.0,55.5" fill="#3B4651"/><text x="450" y="52" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">marcar lido · lote</text><rect x="480" y="40" width="100" height="38" rx="3" fill="#EDF2E6" stroke="#556B47" stroke-width="0.8"/><text x="530.0" y="56" text-anchor="middle" font-family="Public Sans" font-weight="650" font-size="8" fill="#1E252C">Lido</text><text x="530.0" y="69" text-anchor="middle" font-family="Plex Mono" font-size="6.8" fill="#66707A">lido</text><path d="M55,40 C55,8 370,8 370,34" fill="none" stroke="#3B4651" stroke-width="0.9"/><polygon points="370,40 366.5,33.0 373.5,33.0" fill="#3B4651"/><text x="212" y="18" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">abrir no leitor (grava started_at)</text><path d="M530,78 C530,108 370,108 370,84" fill="none" stroke="#9C4A5B" stroke-width="0.9" stroke-dasharray="3 2.4"/><polygon points="370,78 373.5,85.0 366.5,85.0" fill="#3B4651"/><text x="450" y="112" text-anchor="middle" font-family="Plex Mono" font-size="6.2" fill="#3B4651">arrastar de volta (limpa finished_at)</text></svg><figcaption><b>Figura 4</b>Estantes de leitura (<code>reading_states.shelf</code>). Chegar em <code>lido</code> grava <code>finished_at</code> e emite <code>shelf.finished</code>.</figcaption></figure>
+</section>
+
+<!-- ============================================================ 07 -->
+<section class="chapter" id="c-busca">
+  <div class="chapter-head">
+    <div class="num">Capítulo 07</div>
+    <h2>Busca em texto completo</h2>
+    <p class="lede">A busca usa a tabela virtual FTS5 com uma linha por documento. A mesma tabela serve à paleta de comandos e ao “Parecidos na sua biblioteca”; o “Pergunte ao documento” lê o texto em <code>document_content</code>.</p>
+  </div>
+  <pre><code>CREATE VIRTUAL TABLE documents_fts USING fts5 (
+  document_id UNINDEXED,     -- liga a linha ao documento (não é pesquisado)
+  title,                     -- peso 10
+  author,                    -- peso 5
+  extra,                     -- descrição por IA + sua descrição + etiquetas, peso 3
+  body,                      -- os primeiros 300.000 caracteres do texto, peso 1
+  tokenize = 'unicode61 remove_diacritics 2'
+);</code></pre>
+  <p><code>SearchService.refreshSearch(id)</code> apaga e reinsere a linha do documento; ele roda na importação, depois da leitura, depois da descrição, ao editar título, autor ou descrição e ao trocar etiquetas (inclusive em lote), sempre dentro da mesma transação da mudança. <strong>Ferramentas → Reconstruir o índice de busca</strong> faz isso para todos os documentos e compacta o índice.</p>
+
+  <h3 id="s-match">Da caixa de busca para o MATCH</h3>
+  <table>
+    <thead><tr><th style="width:30%">Você digita</th><th style="width:32%">Vira</th><th>Por quê</th></tr></thead>
+    <tbody>
+      <tr><td><code>contrato aluguel</code></td><td><code>"contrato"* AND "aluguel"*</code></td><td>todas as palavras, aceitando o começo</td></tr>
+      <tr><td><code>"reunião de planejamento"</code></td><td><code>"reunião de planejamento"</code></td><td>frase exata</td></tr>
+      <tr><td><code>python -flask</code></td><td><code>"python"* NOT "flask"*</code></td><td>exclusão</td></tr>
+      <tr><td><code>a"b OR</code></td><td><code>"a" AND "b" AND "or"*</code></td><td>aspas e operadores digitados viram texto: a consulta nunca quebra</td></tr>
+    </tbody>
+  </table>
+  <p>Além do <code>MATCH</code>, a listagem aceita documentos cujo <code>title_sort</code> contenha o texto digitado (<code>LIKE</code>), para achar pedaços no meio de palavras do título. O filtro de etiqueta junta <code>document_tags</code> e <code>tags</code> pelo <code>slug</code>.</p>
+
+  <h3 id="s-rank">Ranking e trecho</h3>
+  <pre><code>SELECT d.*
+FROM documents d
+LEFT JOIN (SELECT document_id, bm25(documents_fts, 0, 10.0, 5.0, 3.0, 1.0) AS rank
+           FROM documents_fts WHERE documents_fts MATCH :consulta) f ON f.document_id = d.id
+WHERE (f.document_id IS NOT NULL OR d.title_sort LIKE :trecho ESCAPE '\')
+ORDER BY (f.rank IS NULL), f.rank, d.created_at DESC
+LIMIT :tamanho OFFSET :inicio;
+
+-- trecho com a palavra destacada, só para os documentos da página
+SELECT document_id, snippet(documents_fts, 4, char(2), char(3), ' … ', 26)
+FROM documents_fts WHERE documents_fts MATCH :consulta AND document_id IN (...);</code></pre>
+  <p>O BM25 do FTS5 devolve números menores para os melhores resultados; os pesos fazem o título valer mais que o texto. O trecho usa os caracteres de controle 2 e 3 como marcadores: o texto é escapado para HTML e só então eles viram <code>&lt;mark&gt;</code>, então nada do documento vira HTML na tela.</p>
+
+  <h3 id="s-parecidos">Parecidos e Pergunte <span class="chip" style="--c:#D8A7B1">2.1.0</span></h3>
+  <p><strong>Parecidos na sua biblioteca</strong> (<code>DiscoveryService</code>) soma duas pistas: etiquetas em comum (cada etiqueta compartilhada vale 3 pontos, ou 4 quando, no outro documento, ela foi escolhida pela pessoa) e uma busca FTS com os termos do título e das etiquetas do documento ligados por <code>OR</code> (o 1º resultado vale 2,5 pontos e o valor cai até o 30º). Só entram documentos prontos, sem o próprio, em ordem de pontuação.</p>
+  <pre><code>-- etiquetas em comum com o documento :id
+SELECT other.document_id AS id,
+       sum(CASE WHEN other.source = 'usuario' THEN 4.0 ELSE 3.0 END) AS s
+FROM document_tags mine
+JOIN document_tags other ON other.tag_id = mine.tag_id AND other.document_id != mine.document_id
+WHERE mine.document_id = :id
+GROUP BY other.document_id;
+
+-- termos do título e das etiquetas no índice ("termo"* a partir de 5 letras)
+SELECT document_id FROM documents_fts
+WHERE documents_fts MATCH '"python"* OR "guia" OR "programacao"*' AND document_id != :id
+ORDER BY bm25(documents_fts, 0, 10.0, 5.0, 3.0, 1.0) LIMIT 30;</code></pre>
+  <p>O <strong>Pergunte ao documento</strong> não usa o FTS: lê <code>document_content.text</code> do documento, divide em trechos de 400 a 700 caracteres (a página vem da contagem de <code>\f</code> no PDF) e pontua os trechos com um BM25 próprio em memória (<code>PassageFinder</code>). Nada é gravado: perguntas e respostas não ficam no banco.</p>
+</section>
+
+<!-- ============================================================ 08 -->
+<section class="chapter" id="c-int">
+  <div class="chapter-head">
+    <div class="num">Capítulo 08</div>
+    <h2>Integridade e transações</h2>
+    <p class="lede">As regras importantes ficam no próprio banco, não só no código: mesmo um script que escreva direto no <code>lume.db</code> não consegue gravar um estado inválido.</p>
+  </div>
+  <table>
+    <thead><tr><th style="width:28%">Regra</th><th>Como o banco garante</th></tr></thead>
+    <tbody>
+      <tr><td>Um arquivo, um documento</td><td><code>sha256 UNIQUE</code> em <code>documents</code>; duas importações simultâneas do mesmo arquivo (por exemplo, a pasta monitorada e um arrastar): a segunda vira “duplicado”</td></tr>
+      <tr><td>Valores dentro do domínio</td><td><code>CHECK</code> em <code>kind</code>, <code>status</code>, <code>shelf</code>, <code>color</code>, <code>stage</code>, booleanos, <code>progress</code>, <code>page</code>, <code>size_bytes</code></td></tr>
+      <tr><td>JSON válido</td><td><code>CHECK (json_valid(...))</code> em <code>outline</code>, <code>metadata</code>, <code>location</code>, <code>anchor</code>, <code>details</code> e <code>value</code> (inclusive as listas de integrações)</td></tr>
+      <tr><td>Sem órfãos</td><td><code>FOREIGN KEY ... ON DELETE CASCADE</code> em todas as tabelas filhas, com <code>PRAGMA foreign_keys = ON</code></td></tr>
+      <tr><td>Nomes de coleção únicos</td><td><code>UNIQUE INDEX ON collections (lower(name))</code></td></tr>
+      <tr><td>Uma ligação por par</td><td>Chaves primárias compostas em <code>document_tags</code> e <code>collection_items</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Transações</h3>
+  <p><code>Database.transaction(...)</code> recebe um <code>Runnable</code> ou <code>Supplier</code>: a primeira chamada abre <code>BEGIN IMMEDIATE</code> (reserva a escrita na hora, evitando conflito no meio) e chamadas aninhadas viram <code>SAVEPOINT</code>. Se qualquer coisa lançar exceção, tudo é desfeito (<code>ROLLBACK</code> ou <code>ROLLBACK TO</code>).</p>
+  <pre><code>db.transaction(() -&gt; {
+    db.update("INSERT INTO documents (...) VALUES (...)", ...);
+    Files.move(tmp, pasta.resolve("original." + kind));      // falhou? a linha também volta
+    search.refreshSearch(id);                               // SAVEPOINT aninhado
+});</code></pre>
+
+  <h3 id="s-lote">Ações em lote <span class="chip" style="--c:#D8A7B1">2.1.0</span></h3>
+  <p><code>POST /api/v1/documents/batch</code> (<code>BatchService</code>) recebe até 500 ids, descarta repetidos e os que não existem e aplica a ação documento por documento, com os mesmos serviços das ações individuais: <code>ReadingService</code> para estante e favorito, <code>LibraryService.setTags</code> para etiquetas (somando às da pessoa, sem tocar nas da IA), <code>CollectionService</code> para coleções, <code>deleteDocument</code> para exclusão e o pipeline para reler ou redescrever. Cada documento é gravado pelas transações do próprio serviço (não há uma transação única para o lote): o que já foi aplicado continua valendo se um item falhar, e os eventos e webhooks saem como sempre.</p>
+  <div class="note"><span class="eyebrow">Concorrência</span>Só o processo do Lume escreve no banco, por uma conexão só, protegida por uma trava (<code>ReentrantLock</code>). Os fios da API (Tomcat), do pipeline, das pastas monitoradas, dos webhooks e das ferramentas esperam a vez, então não há disputa, e o modo WAL deixa leituras externas correrem enquanto o pipeline grava. Operações longas, como <code>VACUUM</code>, seguram a trava só pelo tempo da instrução.</div>
+</section>
+
+<!-- ============================================================ 09 -->
+<section class="chapter" id="c-sql">
+  <div class="chapter-head">
+    <div class="num">Capítulo 09</div>
+    <h2>Consultas das Estatísticas e úteis</h2>
+    <p class="lede">A tela Estatísticas (<code>InsightsService</code>, <code>GET /api/v1/insights</code>) é feita só de consultas de agregação sobre o esquema existente. Para abrir o banco fora do Lume, feche o aplicativo e use o <code>sqlite3</code> ou o DB Browser for SQLite, sempre numa cópia.</p>
+  </div>
+  <h4>Totais da biblioteca e das anotações</h4>
+  <pre><code>SELECT count(*) AS documents, coalesce(sum(page_count), 0) AS pages, coalesce(sum(word_count), 0) AS words,
+       coalesce(sum(size_bytes), 0) AS bytes, coalesce(sum(kind = 'pdf'), 0) AS pdf, coalesce(sum(kind = 'docx'), 0) AS docx
+FROM documents;
+
+SELECT count(*) AS annotations, coalesce(sum(kind = 'highlight'), 0) AS highlights,
+       coalesce(sum(kind = 'note'), 0) AS notes, coalesce(sum(kind = 'bookmark'), 0) AS bookmarks
+FROM annotations;</code></pre>
+  <h4>Estantes, lidos no ano e favoritos</h4>
+  <pre><code>SELECT coalesce(sum(shelf = 'lido'), 0) AS finished,
+       coalesce(sum(shelf = 'lido' AND finished_at &gt;= '2026-01-01'), 0) AS this_year,
+       coalesce(sum(shelf = 'lendo'), 0) AS reading, coalesce(sum(shelf = 'para_ler'), 0) AS wanted,
+       coalesce(sum(favorite = 1), 0) AS favorites
+FROM reading_states;</code></pre>
+  <h4>Páginas lidas (aproximação)</h4>
+  <pre><code>SELECT coalesce(sum(CASE WHEN rs.shelf = 'lido' THEN coalesce(d.page_count, 0)
+                         WHEN rs.last_opened_at IS NULL THEN 0
+                         WHEN d.kind = 'pdf' THEN rs.page
+                         ELSE CAST(round(rs.progress * coalesce(d.page_count, 0)) AS INTEGER) END), 0)
+FROM reading_states rs JOIN documents d ON d.id = rs.document_id;</code></pre>
+  <h4>Por mês (últimos 12 meses; os meses sem nada são completados com zero na aplicação)</h4>
+  <pre><code>SELECT substr(created_at, 1, 7) AS month, count(*) AS n
+FROM documents WHERE created_at IS NOT NULL GROUP BY month;                         -- adicionados
+
+SELECT substr(finished_at, 1, 7) AS month, count(*) AS n
+FROM reading_states WHERE finished_at IS NOT NULL AND shelf = 'lido' GROUP BY month;  -- concluídos</code></pre>
+  <h4>Assuntos, maiores documentos e idiomas</h4>
+  <pre><code>SELECT t.name, t.slug, count(dt.document_id) AS count
+FROM tags t JOIN document_tags dt ON dt.tag_id = t.id
+GROUP BY t.id ORDER BY count DESC, t.name LIMIT 10;
+
+SELECT id, title, kind, page_count, size_bytes FROM documents
+ORDER BY coalesce(page_count, 0) DESC, size_bytes DESC LIMIT 5;
+
+SELECT CASE WHEN language = '' THEN 'indefinido' ELSE language END AS language, count(*) AS count
+FROM documents GROUP BY 1 ORDER BY count DESC;</code></pre>
+
+  <h3>Outras consultas úteis</h3>
+  <pre><code>-- Quantos documentos em cada estado
+SELECT status, count(*) FROM documents GROUP BY status;
+
+-- O que estou lendo, do mais recente para o mais antigo
+SELECT d.title, r.page, d.page_count, round(r.progress * 100) AS pct, r.last_opened_at
+FROM reading_states r JOIN documents d ON d.id = r.document_id
+WHERE r.shelf = 'lendo' ORDER BY r.last_opened_at DESC;
+
+-- Documentos que vieram de uma pasta monitorada (pelo caminho de origem)
+SELECT title, source_path FROM documents WHERE source_path LIKE 'C:\Users\voce\Downloads\%' ESCAPE '|';
+
+-- Tempo médio de leitura e descrição nos últimos 7 dias
+SELECT stage, count(*), round(avg(duration_ms)) AS ms FROM jobs
+WHERE status = 'succeeded' AND started_at &gt;= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-7 days')
+GROUP BY stage;
+
+-- Documentos que caíram para o resumo local
+SELECT d.title, j.error FROM jobs j JOIN documents d ON d.id = j.document_id
+WHERE j.stage = 'describe' AND json_extract(j.details, '$.fallback') = 1;
+
+-- Busca direto no índice
+SELECT d.title FROM documents_fts f JOIN documents d ON d.id = f.document_id
+WHERE documents_fts MATCH '"cooperativa"*' ORDER BY bm25(documents_fts, 0, 10, 5, 3, 1);</code></pre>
+</section>
+
+<!-- ============================================================ 10 -->
+<section class="chapter" id="c-man">
+  <div class="chapter-head">
+    <div class="num">Capítulo 10</div>
+    <h2>Backup, restauração e manutenção</h2>
+    <p class="lede">A biblioteca é o banco mais a pasta <code>documentos/</code>. Na 2.1.0, as duas coisas saem juntas num <code>.zip</code> pela tela Ferramentas, e as tarefas de manutenção que antes exigiam o <code>sqlite3</code> viraram botões.</p>
+  </div>
+
+  <h3 id="s-backup">Backup pelo Lume <span class="chip" style="--c:#D8A7B1">2.1.0</span></h3>
+  <ol class="steps">
+    <li><strong>Instantâneo consistente</strong>: <code>ToolsService.backupTo</code> roda <code>VACUUM INTO 'tmp/…/lume.db'</code>, que grava uma cópia compacta e coerente do banco sem fechar a conexão e sem parar o Lume.</li>
+    <li><strong>Zip</strong>: o arquivo escolhido no diálogo recebe <code>lume.db</code> (o instantâneo), <code>documentos/**</code> (só as pastas de documentos que existem no banco) e <code>LEIAME.txt</code> com a data, a versão, a contagem e as instruções. O zip é gravado primeiro com outro nome e só renomeado no fim: um backup interrompido não deixa um arquivo pela metade.</li>
+    <li><strong>Limpeza</strong>: o instantâneo temporário é apagado.</li>
+  </ol>
+  <p>Sem o Lume aberto, o jeito manual continua valendo: com o aplicativo fechado (o diário WAL é incorporado ao <code>lume.db</code>), copie a pasta de dados inteira.</p>
+
+  <h3 id="s-restaurar">Restauração e mudança de computador</h3>
+  <ol class="steps">
+    <li>Feche o Lume.</li>
+    <li>Abra a pasta de dados (<code>%APPDATA%\Lume\Biblioteca</code>, <code>Lume-dados\Biblioteca</code> no modo portátil ou <code>LUME_DATA_DIR</code>).</li>
+    <li>Guarde (ou apague) <code>lume.db</code>, <code>lume.db-wal</code>, <code>lume.db-shm</code> e <code>documentos</code>.</li>
+    <li>Extraia o zip ali dentro e abra o Lume. Se o backup veio de uma versão mais antiga, as migrações que faltam rodam na abertura.</li>
+  </ol>
+  <div class="note warn"><span class="eyebrow">Segredos não viajam</span>A chave de API (<code>settings.ai.api_key</code>) e os segredos dos webhooks (<code>settings.webhooks[].secret</code>) são cifrados pelo DPAPI para a conta do Windows que os gravou. Em outro computador ou outra conta eles não abrem: informe de novo em Preferências e em Integrações. As pastas monitoradas restauradas apontam para caminhos do computador antigo; confira-as em Integrações.</div>
+
+  <h3 id="s-manut">Manutenção</h3>
+  <table>
+    <thead><tr><th style="width:22%">Botão em Ferramentas</th><th style="width:38%">O que roda</th><th>Quando usar</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Verificar a biblioteca</strong></td><td><code>PRAGMA integrity_check;</code> + conferência de <code>original.*</code> de cada documento + pastas sem linha em <code>documents</code> + arquivos em <code>tmp/</code></td><td>Depois de uma queda de energia ou se algo parecer estranho: a resposta deve ser <code>ok</code></td></tr>
+      <tr><td><strong>Reconstruir o índice de busca</strong></td><td><code>refreshSearch(id)</code> para cada documento e <code>INSERT INTO documents_fts(documents_fts) VALUES ('optimize');</code></td><td>Resultados faltando na busca; depois de editar o banco à mão</td></tr>
+      <tr><td><strong>Otimizar o banco de dados</strong></td><td><code>PRAGMA wal_checkpoint(TRUNCATE); VACUUM; PRAGMA optimize;</code></td><td>Depois de apagar muitos documentos; o resultado mostra o tamanho antes e depois</td></tr>
+      <tr><td><strong>Limpar sobras</strong></td><td>Apaga pastas de <code>documentos/</code> sem linha no banco e temporários de <code>tmp/</code></td><td>Depois de quedas no meio de importações ou exclusões</td></tr>
+      <tr><td><strong>Descrever tudo de novo</strong></td><td>Põe na fila de descrição todos os documentos em <code>ready</code></td><td>Depois de trocar o provedor de IA</td></tr>
+    </tbody>
+  </table>
+  <p>Comandos que continuam só no <code>sqlite3</code>, com o Lume fechado:</p>
+  <pre><code>PRAGMA foreign_key_check;                                    -- ninguém deixou órfãos editando à mão?
+DELETE FROM jobs WHERE started_at &lt; date('now', '-180 days');  -- limpar histórico antigo de etapas
+.backup copia.db                                             -- cópia do banco pelo próprio sqlite3</code></pre>
+</section>
+
+<!-- ============================================================ 11 -->
+<section class="chapter" id="c-evo">
+  <div class="chapter-head">
+    <div class="num">Capítulo 11</div>
+    <h2>Evolução do esquema e versão web</h2>
+    <p class="lede">Como mudar o banco sem perder dados e como ele se compara ao PostgreSQL da versão web.</p>
+  </div>
+  <h3>Criar uma migração</h3>
+  <ol class="steps">
+    <li>Acrescente um texto SQL no fim da lista <code>ALL</code> em <code>src/main/java/io/github/ravelroot/lume/db/Migrations.java</code>. Nunca edite migrações já publicadas.</li>
+    <li>Prefira mudanças aditivas: <code>ALTER TABLE ... ADD COLUMN</code> com <code>DEFAULT</code>, tabelas e índices novos. Dados pequenos de configuração podem ir para <code>settings</code>, como as integrações da 2.1.0, sem migração nenhuma.</li>
+    <li>Para mudar o tipo ou as restrições de uma coluna, siga o roteiro do SQLite: criar a tabela nova, copiar com <code>INSERT ... SELECT</code>, apagar a antiga e renomear, tudo na mesma migração (a migração 2 faz exatamente isso com as cores das anotações).</li>
+    <li>Rode <code>mvn test</code>: o <code>DatabaseTest</code> abre um banco vazio, confere as tabelas, abre de novo para garantir que nada é reaplicado e testa a migração de um banco no esquema 1.</li>
+  </ol>
+  <pre><code>// src/main/java/io/github/ravelroot/lume/db/Migrations.java
+static final String V3 = """
+        ALTER TABLE reading_states ADD COLUMN seconds_read INTEGER NOT NULL DEFAULT 0;
+        """;    // 3: exemplo — tempo total de leitura
+public static final List&lt;String&gt; ALL = List.of(V1, V2, V3);</code></pre>
+
+  <h3>Comparação com a versão web</h3>
+  <table>
+    <thead><tr><th style="width:46%">Versão web (PostgreSQL)</th><th>Lume para Windows (SQLite)</th></tr></thead>
+    <tbody>
+      <tr><td><code>accounts_user</code>, <code>accounts_apitoken</code></td><td>Não existem: um usuário só; o perfil fica em <code>settings</code></td></tr>
+      <tr><td><code>library_document.owner_id</code> e <code>visibility</code></td><td>Não existem: tudo é de quem usa o computador</td></tr>
+      <tr><td><code>uuid</code> nativo · <code>jsonb</code></td><td>UUID em <code>TEXT</code> · <code>TEXT</code> com <code>CHECK (json_valid(...))</code> e <code>json_extract</code></td></tr>
+      <tr><td><code>tsvector</code> com pesos A/B/C, <code>pt_unaccent</code>, <code>ts_headline</code></td><td>FTS5 com <code>remove_diacritics 2</code>, pesos no <code>bm25()</code> e <code>snippet()</code></td></tr>
+      <tr><td>Trigramas (<code>pg_trgm</code>) no título</td><td><code>LIKE</code> no <code>title_sort</code> sem acentos</td></tr>
+      <tr><td>Redis Streams, ZSET de atraso e pub/sub</td><td>Fila em memória com <code>ExecutorService</code> e <code>ScheduledExecutorService</code>; eventos por Server-Sent Events; histórico em <code>jobs</code></td></tr>
+      <tr><td><code>SELECT ... FOR UPDATE SKIP LOCKED</code></td><td><code>BEGIN IMMEDIATE</code> e uma conexão só, protegida por trava</td></tr>
+      <tr><td><code>pg_dump</code> e cópia do volume</td><td><code>VACUUM INTO</code> + zip da pasta <code>documentos/</code> (Ferramentas)</td></tr>
+      <tr><td>ORM e migrações do Django</td><td><code>JdbcTemplate</code> do Spring, lista <code>Migrations.ALL</code> e <code>PRAGMA user_version</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ 12 -->
+<section class="chapter" id="c-hist">
+  <div class="chapter-head">
+    <div class="num">Capítulo 12</div>
+    <h2>Histórico de versões</h2>
+    <p class="lede">O que mudou no banco a cada versão do Lume para Windows.</p>
+  </div>
+  <table class="hist">
+    <thead><tr><th style="width:14%">Versão</th><th style="width:18%">Esquema</th><th>Mudanças</th></tr></thead>
+    <tbody>
+      <tr><td>2.1.0</td><td><code>user_version 2</code></td><td>Sem migração. Novas chaves <code>watch_folders</code> e <code>webhooks</code> em <code>settings</code>; novos usos de <code>source_path</code> (pastas monitoradas) e de <code>finished_at</code> (Estatísticas e evento <code>shelf.finished</code>); backup com <code>VACUUM INTO</code>; manutenção pela tela Ferramentas; consultas das Estatísticas e dos Parecidos.</td></tr>
+      <tr><td>2.0.0</td><td><code>user_version 2</code></td><td>Núcleo em Java com <code>sqlite-jdbc</code> e <code>JdbcTemplate</code>; mesmo esquema da versão em Electron, aberto sem conversão; chave de IA passa a usar o prefixo <code>dpapi:</code>.</td></tr>
+      <tr><td>1.x</td><td>1 → 2</td><td>Esquema inicial; a migração 2 converte as cores das anotações para a paleta (Sálvia, Rosé, Ardósia, Camurça).</td></tr>
+    </tbody>
+  </table>
+  <div class="colophon">
+    Lume para Windows · Banco de dados · versão 2.1.0 · outubro de 2026. Copyright © 2026 Erik Pimenta e Clara Portes. Distribuído sob a licença MIT. Composto em Literata, Public Sans e IBM Plex Mono a partir de <code>docs/fonte/banco-de-dados.html</code>; o diagrama e as fichas foram conferidos contra <code>Migrations.java</code>.
+  </div>
+</section>
+
+</body>
+</html>

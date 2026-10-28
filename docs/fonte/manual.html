@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Lume para Windows — Manual técnico</title>
+<meta name="author" content="Erik Pimenta e Clara Portes">
+<meta name="description" content="Manual técnico do Lume para Windows 2.1.0: instalação, telas, inteligência artificial, integrações, arquitetura, API local e desenvolvimento">
+<meta name="generator" content="Lume">
+<meta name="dcterms.created" content="2026-10-27">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="manual.css">
+</head>
+<body>
+<span class="doc-title">Manual técnico · Lume para Windows</span><span class="doc-version">versão 2.1.0 · outubro de 2026</span>
+
+<!-- ===================== CAPA ===================== -->
+<div class="cover">
+  <div class="spine"><span>Lume para Windows · manual técnico · 2.1.0</span></div>
+  <div class="top"><span>Lume · DOC-01 · v2.1.0</span><span>Manual técnico</span></div>
+  <div class="rule"></div>
+  <div class="mark"><svg viewBox="0 0 64 64"><path fill="#1E252C" fill-rule="evenodd" d="M18 6H46A6 6 0 0 1 52 12V52A6 6 0 0 1 46 58H18A6 6 0 0 1 12 52V12A6 6 0 0 1 18 6ZM32 14.5C33.1 23.6 36.4 26.9 45.5 28C36.4 29.1 33.1 32.4 32 41.5C30.9 32.4 27.6 29.1 18.5 28C27.6 26.9 30.9 23.6 32 14.5ZM22 47.5A2 2 0 0 1 24 45.5H40A2 2 0 0 1 42 47.5V49.5A2 2 0 0 1 40 51.5H24A2 2 0 0 1 22 49.5Z"/></svg></div>
+  <h1>Lume</h1>
+  <div class="sub">Manual técnico do Lume para Windows</div>
+  <div class="desc">Biblioteca de PDF e DOCX que roda inteira no seu computador: capas automáticas, descrição por IA, “Pergunte ao documento”, leitor próprio com anotações, busca em texto completo, estatísticas, ferramentas de backup e exportação e integrações com outros programas.</div>
+
+  <div class="card">
+    <div class="card-id"><span>Ficha DOC-01</span><span>004.4 · LUM · WIN</span></div>
+    <dl>
+      <div class="row"><dt>Assunto</dt><dd>Instalação, telas, IA, integrações, arquitetura, API e desenvolvimento</dd></div>
+      <div class="row"><dt>Plataforma</dt><dd>Java 21 · Spring Boot 4 · SQLite + FTS5 · PDFBox</dd></div>
+      <div class="row"><dt>Sistema</dt><dd>Windows 10 e 11 (64 bits) · Lume.exe portátil</dd></div>
+      <div class="row"><dt>Edição</dt><dd>Versão 2.1.0 · outubro de 2026</dd></div>
+      <div class="row"><dt>Licença</dt><dd>MIT</dd></div>
+    </dl>
+    <div class="hole"></div>
+  </div>
+
+  <div class="labels">
+    <div style="background:#F4F1DE;border:0.6pt solid #C9BFA8"><b>Creme</b>#F4F1DE</div>
+    <div style="background:#B0A08C"><b>Camurça</b>#B0A08C</div>
+    <div style="background:#B8C9A9"><b>Sálvia</b>#B8C9A9</div>
+    <div style="background:#8395A7"><b>Ardósia</b>#8395A7</div>
+    <div style="background:#D8A7B1"><b>Rosé</b>#D8A7B1</div>
+  </div>
+
+  <div class="foot">
+    <div><div class="author">Erik Pimenta e Clara Portes</div>Copyright © 2026 Erik Pimenta e Clara Portes</div>
+    <div class="mono">Outubro de 2026<br>Rio de Janeiro · pt-BR</div>
+  </div>
+</div>
+
+<!-- ===================== SUMÁRIO ===================== -->
+<div class="toc-page">
+  <div class="toc-head"><span class="eyebrow">Índice</span><h2>Sumário</h2></div>
+  <nav class="toc"><ol>
+    <li class="ch"><a href="#ch-rapida"><span class="n">01</span>Visão rápida</a></li>
+    <li class="ch"><a href="#ch-geral"><span class="n">02</span>Visão geral</a></li>
+    <li class="sub"><a href="#s-para-que">Para que serve</a></li>
+    <li class="sub"><a href="#s-faz">Funcionalidades</a></li>
+    <li class="sub"><a href="#s-novidades">Novidades da 2.1.0</a></li>
+    <li class="sub"><a href="#s-tecnologias">Tecnologias</a></li>
+    <li class="sub"><a href="#s-identidade">Identidade visual</a></li>
+    <li class="ch"><a href="#ch-instalacao"><span class="n">03</span>Instalação e primeira execução</a></li>
+    <li class="sub"><a href="#s-requisitos">Requisitos</a></li>
+    <li class="sub"><a href="#s-primeira">Abrir pela primeira vez</a></li>
+    <li class="sub"><a href="#s-dados">Onde ficam os dados</a></li>
+    <li class="sub"><a href="#s-portatil">Modo portátil</a></li>
+    <li class="sub"><a href="#s-atualizar">Atualizar, backup e desinstalar</a></li>
+    <li class="ch"><a href="#ch-telas"><span class="n">04</span>Guia das telas</a></li>
+    <li class="sub"><a href="#s-biblioteca">Biblioteca</a></li>
+    <li class="sub"><a href="#s-selecao">Seleção e ações em lote</a></li>
+    <li class="sub"><a href="#s-paleta">Paleta de comandos</a></li>
+    <li class="sub"><a href="#s-previa">Prévia ao passar o mouse</a></li>
+    <li class="sub"><a href="#s-adicionar">Adicionar documentos</a></li>
+    <li class="sub"><a href="#s-busca">Busca e etiquetas</a></li>
+    <li class="sub"><a href="#s-detalhe">Detalhes do documento</a></li>
+    <li class="sub"><a href="#s-pergunte">Pergunte ao documento</a></li>
+    <li class="sub"><a href="#s-leitor-pdf">Leitor de PDF</a></li>
+    <li class="sub"><a href="#s-leitor-docx">Leitor de DOCX</a></li>
+    <li class="sub"><a href="#s-estantes">Estantes</a></li>
+    <li class="sub"><a href="#s-colecoes">Coleções</a></li>
+    <li class="sub"><a href="#s-estatisticas">Estatísticas</a></li>
+    <li class="sub"><a href="#s-ferramentas">Ferramentas</a></li>
+    <li class="sub"><a href="#s-integracoes-tela">Integrações</a></li>
+    <li class="sub"><a href="#s-sistema">Sistema</a></li>
+    <li class="sub"><a href="#s-preferencias">Preferências</a></li>
+    <li class="sub"><a href="#s-escuro">Tema escuro</a></li>
+    <li class="ch"><a href="#ch-teclado"><span class="n">05</span>Teclado e acessibilidade</a></li>
+    <li class="ch"><a href="#ch-ia"><span class="n">06</span>Inteligência artificial</a></li>
+    <li class="sub"><a href="#s-provedores">Provedores prontos</a></li>
+    <li class="sub"><a href="#s-configurar">Como configurar</a></li>
+    <li class="sub"><a href="#s-qa">Como o “Pergunte” responde</a></li>
+    <li class="sub"><a href="#s-enviado">Dados enviados e chave</a></li>
+    <li class="ch"><a href="#ch-integracoes"><span class="n">07</span>Integrações e exportação</a></li>
+    <li class="sub"><a href="#s-pastas">Pastas monitoradas</a></li>
+    <li class="sub"><a href="#s-webhooks">Webhooks</a></li>
+    <li class="sub"><a href="#s-exportar">Exportar para outros programas</a></li>
+    <li class="sub"><a href="#s-backup">Backup completo</a></li>
+    <li class="ch"><a href="#ch-arq"><span class="n">08</span>Arquitetura</a></li>
+    <li class="sub"><a href="#s-caminho">O caminho de um documento</a></li>
+    <li class="sub"><a href="#s-fila">Fila e recuperação</a></li>
+    <li class="sub"><a href="#s-seguranca">Segurança</a></li>
+    <li class="sub"><a href="#s-repo">Estrutura do repositório</a></li>
+    <li class="ch"><a href="#ch-api"><span class="n">09</span>API local</a></li>
+    <li class="sub"><a href="#s-rotas">Rotas</a></li>
+    <li class="sub"><a href="#s-rotas-novas">Rotas novas da 2.1.0</a></li>
+    <li class="sub"><a href="#s-ponte">Ponte com o Windows</a></li>
+    <li class="sub"><a href="#s-eventos">Eventos ao vivo</a></li>
+    <li class="ch"><a href="#ch-dev"><span class="n">10</span>Desenvolvimento</a></li>
+    <li class="ch"><a href="#ch-problemas"><span class="n">11</span>Solução de problemas</a></li>
+    <li class="ch"><a href="#ch-ref"><span class="n">12</span>Referência</a></li>
+    <li class="sub"><a href="#s-glossario">Glossário</a></li>
+    <li class="sub"><a href="#s-terceiros">Componentes de terceiros</a></li>
+    <li class="sub"><a href="#s-versoes">Histórico de versões</a></li>
+  </ol></nav>
+  <p class="toc-note">Convenções: <code>código</code> indica comandos, rotas e nomes de arquivo; <kbd>Tecla</kbd> indica atalhos de teclado; nomes em <strong>negrito</strong> são botões e rótulos da interface; <span class="tag new">2.1.0</span> marca o que é novo nesta versão.</p>
+</div>
+
+<!-- ===================== 01 VISÃO RÁPIDA ===================== -->
+<section class="chapter" id="ch-rapida">
+  <div class="chapter-head">
+    <div class="num">Capítulo 01</div>
+    <h2>Visão rápida</h2>
+    <p class="lede">O Lume para Windows em uma página: o que é, para quem foi feito e como as peças se encaixam.</p>
+  </div>
+  <div class="quick">
+    <div class="q l">
+      <div class="eyebrow">O que é</div>
+      <p>Uma biblioteca pessoal de PDF e DOCX que roda inteira no seu computador, num único <code>Lume.exe</code>, sem instalador, sem servidor na nuvem e sem conta. Cada arquivo importado ganha capa, texto indexado, sumário, descrição e etiquetas escritas por IA, e abre num leitor próprio que guarda a página, os destaques e as notas.</p>
+    </div>
+    <div class="q">
+      <div class="eyebrow">Para quem</div>
+      <ul>
+        <li>Quem acumula apostilas, livros técnicos, artigos, relatórios, contratos e atas e quer tudo num lugar só, com busca no texto.</li>
+        <li>Pesquisadores e estudantes que levam o catálogo para o Zotero, o Obsidian ou uma planilha.</li>
+        <li>Desenvolvedores que querem estudar uma aplicação desktop em Java 21 com Spring Boot e SQLite.</li>
+      </ul>
+    </div>
+    <div class="q wide">
+      <div class="eyebrow">Da pasta à leitura</div>
+      <div class="flow">
+        <div><b>01 · Importar</b>Arraste arquivos ou pastas, use o botão ou deixe uma pasta monitorada. Repetidos são reconhecidos pelo SHA-256.</div>
+        <div><b>02 · Ler</b>O núcleo Java (PDFBox e o leitor de DOCX) extrai texto, sumário e metadados e desenha a capa.</div>
+        <div class="ai"><b>03 · Descrever</b>O resumo local ou o provedor de IA escreve a descrição e sugere etiquetas.</div>
+        <div><b>04 · Pronto</b>A tela se atualiza sozinha (Server-Sent Events) e os webhooks avisam outros sistemas.</div>
+        <div><b>05 · Usar</b>Leia, destaque, pergunte ao documento, organize em lote e exporte para outros programas.</div>
+      </div>
+    </div>
+    <div class="q l">
+      <div class="eyebrow">Como começar</div>
+      <p>Baixe o <code>Lume.exe</code> (cerca de 46 MB, com o Java embutido) e dê dois cliques. Na primeira vez o Windows pode pedir <strong>Mais informações → Executar assim mesmo</strong>. Arraste a pasta <code>exemplos/</code> do repositório para ver a biblioteca cheia.</p>
+      <p>Detalhes no <a href="#ch-instalacao">capítulo 03</a>.</p>
+    </div>
+    <div class="q">
+      <div class="eyebrow">Peças do sistema</div>
+      <table class="compact" style="margin:0">
+        <tr><td><strong>Lume.exe</strong></td><td>Lançador portátil (NSIS) com Java 21 reduzido</td></tr>
+        <tr><td><strong>Núcleo</strong></td><td>Spring Boot 4 em 127.0.0.1: API, pipeline, integrações</td></tr>
+        <tr><td><strong>Janela</strong></td><td>Microsoft Edge em modo aplicativo</td></tr>
+        <tr><td><strong>lume.db</strong></td><td>SQLite com busca FTS5</td></tr>
+        <tr><td><strong>documentos/</strong></td><td>Originais, capas e HTML de leitura</td></tr>
+      </table>
+    </div>
+    <div class="q l">
+      <div class="eyebrow">Novo na 2.1.0</div>
+      <ul>
+        <li>Identidade visual da versão web 1.1, com Rosé tinta como assinatura.</li>
+        <li>Seleção em lote, paleta de comandos (<kbd>Ctrl</kbd> <kbd>K</kbd>) e filtro por etiqueta.</li>
+        <li>Pergunte ao documento, Estatísticas, Ferramentas e Integrações.</li>
+      </ul>
+    </div>
+    <div class="q">
+      <div class="eyebrow">Privacidade</div>
+      <p>Por padrão tudo acontece no computador: o resumo e as respostas são feitos localmente e nenhum trecho sai da máquina. Provedores externos de IA e webhooks são opcionais e só enviam o que está descrito nos capítulos <a href="#ch-ia">06</a> e <a href="#ch-integracoes">07</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 02 VISÃO GERAL ===================== -->
+<section class="chapter" id="ch-geral">
+  <div class="chapter-head">
+    <div class="num">Capítulo 02</div>
+    <h2>Visão geral</h2>
+    <p class="lede">O Lume para Windows é a versão desktop do Lume web: a mesma interface, a mesma lógica de biblioteca e o mesmo leitor, com o núcleo em Java 21 e Spring Boot e todos os dados numa pasta do seu usuário.</p>
+  </div>
+
+  <h3 id="s-para-que">Para que serve</h3>
+  <p>O Lume funciona como uma estante digital instalada no próprio computador. Você arrasta os arquivos (ou pastas inteiras) para a janela e cada documento ganha capa, descrição escrita por IA, sumário e um leitor que lembra onde você parou. Serve para organizar apostilas, livros técnicos, artigos, relatórios, contratos e atas com busca no texto completo, estantes de leitura, coleções e anotações, e para levar esse acervo a outros programas quando for preciso.</p>
+  <p>Não há servidor na internet, Docker nem conta: tudo fica num executável, o <code>Lume.exe</code>, e numa pasta de dados no seu usuário do Windows (ou num pendrive, no modo portátil).</p>
+
+  <h3 id="s-faz">Funcionalidades</h3>
+  <table>
+    <thead><tr><th style="width:27%">Recurso</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Importar arrastando</strong></td><td>Arquivos soltos, vários de uma vez ou pastas inteiras (com subpastas), além do botão <strong>Adicionar documentos</strong>. Repetidos são reconhecidos pela impressão digital (SHA-256) e não ocupam espaço de novo.</td></tr>
+      <tr><td><strong>Capas automáticas</strong></td><td>A capa de um PDF é a primeira página que não esteja em branco, desenhada pelo Apache PDFBox. DOCX ganham uma capa tipográfica em Java2D nas cores da paleta.</td></tr>
+      <tr><td><strong>Descrição por IA</strong></td><td>Duas ou três frases e até quatro etiquetas por documento, vistas na prévia ao passar o mouse. Funciona sem internet (resumo local) ou com Claude, OpenAI, Gemini, Groq, OpenRouter, Mistral, DeepSeek, Ollama e LM Studio.</td></tr>
+      <tr><td><strong>Pergunte ao documento</strong> <span class="tag new">2.1.0</span></td><td>Faça uma pergunta e receba os trechos mais relevantes, com a página; com um provedor de IA, a resposta vem escrita e citando os trechos.</td></tr>
+      <tr><td><strong>Leitor próprio</strong></td><td>PDF com pdf.js (zoom, miniaturas, sumário, busca, temas Papel, Sépia e Noite, modo foco) e DOCX convertido em texto de leitura. Destaques em quatro cores, notas e marcadores, exportáveis em Markdown.</td></tr>
+      <tr><td><strong>Organização</strong></td><td>Estantes Quero ler, Lendo e Lidos com arrastar e soltar; coleções com ordem própria; favoritos e etiquetas; <strong>seleção múltipla com ações em lote</strong> <span class="tag new">2.1.0</span>.</td></tr>
+      <tr><td><strong>Busca de verdade</strong></td><td>Título, autor, descrições, etiquetas e o texto inteiro, sem diferenciar acentos, com frase exata, exclusão (<code>-palavra</code>), filtro por etiqueta e o trecho encontrado em destaque.</td></tr>
+      <tr><td><strong>Estatísticas</strong> <span class="tag new">2.1.0</span></td><td>Documentos e páginas, leituras concluídas por mês, assuntos mais frequentes, formatos, idiomas e maiores arquivos.</td></tr>
+      <tr><td><strong>Ferramentas</strong> <span class="tag new">2.1.0</span></td><td>Backup completo em .zip, exportação do catálogo (CSV, JSON, BibTeX, Markdown), notas para Obsidian e Notion, verificação e manutenção do banco.</td></tr>
+      <tr><td><strong>Integrações</strong> <span class="tag new">2.1.0</span></td><td>Pastas monitoradas com importação automática e webhooks para n8n, Make, Zapier, Slack, Discord, Teams ou o seu servidor.</td></tr>
+      <tr><td><strong>Do jeito do Windows</strong></td><td>Diálogos nativos, abrir no programa padrão, mostrar no Explorador, salvar uma cópia, “Abrir com” o Lume num PDF, tema que acompanha o sistema e modo portátil.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s-novidades">Novidades da 2.1.0</h3>
+  <ul>
+    <li><strong>Nova identidade visual</strong>, a mesma do Lume Web 1.1: barra lateral cor de creme (a “mesa”), área de leitura mais clara, tinta escura no texto e no botão principal, Rosé tinta como cor de assinatura e IBM Plex Mono nos rótulos e números.</li>
+    <li><strong>Seleção múltipla</strong>: botão <strong>Selecionar</strong>, tecla <kbd>S</kbd> ou <kbd>Shift</kbd> + clique; uma barra de ações aplica estante, favorito, etiquetas, coleção, nova descrição, nova leitura, exportação ou exclusão a vários documentos de uma vez.</li>
+    <li><strong>Paleta de comandos</strong> (<kbd>Ctrl</kbd> <kbd>K</kbd>): telas, ações e busca de documentos e coleções num só lugar; <kbd>?</kbd> mostra todos os atalhos.</li>
+    <li><strong>Pergunte ao documento</strong> e <strong>Parecidos na sua biblioteca</strong> na página de cada documento.</li>
+    <li>Telas novas: <strong>Estatísticas</strong>, <strong>Ferramentas</strong> e <strong>Integrações</strong>.</li>
+    <li><strong>Provedores de IA prontos</strong> em Preferências: um clique preenche endereço e modelo.</li>
+    <li>Filtro por <strong>etiqueta</strong> na biblioteca e novas rotas na API local.</li>
+  </ul>
+
+  <h3 id="s-tecnologias">Tecnologias</h3>
+  <table>
+    <thead><tr><th style="width:17%">Camada</th><th style="width:40%">Tecnologia</th><th>Papel</th></tr></thead>
+    <tbody>
+      <tr><td>Núcleo</td><td>Java 21 · Spring Boot 4 (Spring MVC, Tomcat 11 embutido)</td><td>API local, biblioteca, pipeline, integrações, eventos e ponte com o Windows</td></tr>
+      <tr><td>Janela</td><td>Microsoft Edge em modo aplicativo (<code>--app</code>, Chromium)</td><td>Mostra a interface sem barra de endereço, com perfil próprio</td></tr>
+      <tr><td>Interface</td><td>JavaScript (módulos ES, sem etapa de build) · HTML · CSS</td><td>Biblioteca, prévia, leitor, paleta, estatísticas e painéis</td></tr>
+      <tr><td>Leitura de PDF</td><td>Apache PDFBox 2 · pdf.js 5 no leitor</td><td>Texto, sumário, metadados e capa (PDFBox); páginas na tela (pdf.js)</td></tr>
+      <tr><td>Leitura de DOCX</td><td>Java próprio: <code>java.util.zip</code> + StAX seguro · jsoup</td><td>Texto, sumário, imagens e HTML de leitura higienizado</td></tr>
+      <tr><td>Banco de dados</td><td>SQLite 3.53 (<code>sqlite-jdbc</code>) · FTS5 · JdbcTemplate</td><td>Documentos, leituras, anotações, coleções, preferências e busca</td></tr>
+      <tr><td>IA</td><td>Resumo extrativo local · Claude · APIs compatíveis com OpenAI (<code>java.net.http</code>)</td><td>Descrição, etiquetas e respostas do “Pergunte ao documento”</td></tr>
+      <tr><td>Integrações</td><td><code>ScheduledExecutorService</code> · <code>java.net.http</code> · HMAC-SHA256</td><td>Pastas monitoradas e webhooks</td></tr>
+      <tr><td>Windows</td><td>JNA (DPAPI, registro, foco da janela) · AWT/Swing</td><td>Cofre das chaves, diálogos de arquivo, Explorador</td></tr>
+      <tr><td>Testes</td><td>JUnit 6 · Spring Boot Test · Playwright</td><td>Testes automatizados e teste de interface de ponta a ponta</td></tr>
+      <tr><td>Empacotamento</td><td>Maven · jlink · NSIS</td><td><code>Lume.exe</code> portátil, sem instalador, com o Java embutido</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s-identidade">Identidade visual <span class="tag new">2.1.0</span></h3>
+  <p>A versão 2.1.0 adota a identidade da versão web 1.1. A paleta de cinco tons claros continua a mesma, mas cada cor ganhou um papel fixo. A marca continua sendo a <strong>Faísca</strong>, uma página com uma estrela de quatro pontas vazada (o documento que ganha descrição escrita por IA), sempre monocromática: preta no tema claro e branca no escuro; no ícone do <code>Lume.exe</code> a estrela é preenchida de branco para aparecer em barras de tarefas claras e escuras.</p>
+
+  <h4>Paleta de identidade</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#F4F1DE"></div><b>Creme</b><span class="hex">#F4F1DE</span>A “mesa”: barra lateral e fundos de apoio.</div>
+    <div class="sw"><div class="chip" style="background:#B0A08C"></div><b>Camurça</b><span class="hex">#B0A08C</span>Tom neutro para bordas, detalhes e destaques.</div>
+    <div class="sw"><div class="chip tab" style="background:#B8C9A9"></div><b>Sálvia</b><span class="hex">#B8C9A9</span>Etiqueta da estante Lidos.</div>
+    <div class="sw"><div class="chip tab" style="background:#8395A7"></div><b>Ardósia</b><span class="hex">#8395A7</span>Etiqueta da estante Lendo.</div>
+    <div class="sw"><div class="chip tab" style="background:#D8A7B1"></div><b>Rosé</b><span class="hex">#D8A7B1</span>Etiqueta da estante Quero ler.</div>
+  </div>
+
+  <h4>Papéis de cor</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#FAF8F2"></div><b>Fundo de leitura</b><span class="hex">#FAF8F2</span>Área principal, mais clara que a mesa; superfícies quase brancas por cima.</div>
+    <div class="sw"><div class="chip" style="background:#1E252C"></div><b>Tinta</b><span class="hex">#1E252C</span>Texto, botão principal e a barra de seleção em lote.</div>
+    <div class="sw"><div class="chip" style="background:#9C4A5B"></div><b>Rosé tinta</b><span class="hex">#9C4A5B</span>Assinatura: navegação ativa, progresso, anel de foco, documentos selecionados e respostas.</div>
+    <div class="sw"><div class="chip" style="background:#556B47"></div><b>Sálvia escura</b><span class="hex">#556B47</span>Tudo o que vem da IA: rótulos, descrição e etiquetas sugeridas.</div>
+  </div>
+  <div class="dark-strip">
+    <div class="t">Tema escuro</div>
+    <div><span class="dot" style="background:#15191D;border:0.5pt solid #555"></span>Fundo <span class="m">#15191D</span></div>
+    <div><span class="dot" style="background:#F1EEDC"></span>Texto <span class="m">#F1EEDC</span></div>
+    <div><span class="dot" style="background:#E3A3B0"></span>Assinatura <span class="m">#E3A3B0</span></div>
+  </div>
+
+  <h4>Tipografia em três vozes</h4>
+  <div class="type-voices">
+    <div class="voice serif"><div class="eyebrow">Literata</div><div class="sample">Leitura e títulos</div><p>Serifada para títulos de página, nomes de documentos, o texto do leitor de DOCX e as capas geradas.</p></div>
+    <div class="voice sans"><div class="eyebrow">Public Sans</div><div class="sample">Interface</div><p>Sem serifa para botões, menus, formulários e textos de apoio.</p></div>
+    <div class="voice mono"><div class="eyebrow">IBM Plex Mono</div><div class="sample">PDF · 214 PÁG.</div><p>Monoespaçada para metadados, contadores, rótulos de seção e atalhos. Embutida no aplicativo (licença OFL).</p></div>
+  </div>
+
+  <h4>Melhorias de experiência</h4>
+  <ul>
+    <li><strong>Cabeçalho da biblioteca</strong> com a data, a saudação e um resumo em uma frase com números reais (documentos, em leitura, sendo preparados, com erro) e o “livro-caixa” das estantes: Quero ler, Lendo e Lidos.</li>
+    <li><strong>Filtros como abas de índice</strong>, sublinhadas na aba ativa e com contadores em fonte monoespaçada.</li>
+    <li><strong>Capas com efeito de lombada</strong>, cantos mais retos e sombras mais discretas.</li>
+    <li><strong>Barra de seleção</strong> em tinta escura que sobe do rodapé quando há documentos selecionados.</li>
+    <li><strong>Acessibilidade</strong>: link “Pular para o conteúdo”, respeito a <code>prefers-reduced-motion</code> e contraste AA entre texto e fundo (veja o <a href="#ch-teclado">capítulo 05</a>).</li>
+  </ul>
+</section>
+
+<!-- ===================== 03 INSTALAÇÃO ===================== -->
+<section class="chapter" id="ch-instalacao">
+  <div class="chapter-head">
+    <div class="num">Capítulo 03</div>
+    <h2>Instalação e primeira execução</h2>
+    <p class="lede">Não há instalador: o Lume é um único arquivo. Basta abrir o <code>Lume.exe</code>. Na primeira vez o Windows pode pedir uma confirmação, porque o arquivo não tem assinatura digital paga.</p>
+  </div>
+
+  <h3 id="s-requisitos">Requisitos</h3>
+  <ul>
+    <li>Windows 10 ou 11, 64 bits, com o Microsoft Edge (já vem com o Windows). O Java vai dentro do <code>Lume.exe</code>: não é preciso instalar nada.</li>
+    <li>Cerca de 300 MB livres: na primeira abertura o <code>Lume.exe</code> extrai o Java reduzido e o aplicativo para <code>%LOCALAPPDATA%\Lume\app\&lt;versão&gt;</code>; as aberturas seguintes reaproveitam essa pasta.</li>
+    <li>Espaço para os seus documentos: o Lume guarda uma cópia de cada arquivo importado.</li>
+    <li>Internet só se você escolher um provedor de IA externo ou cadastrar webhooks. O resto funciona desconectado.</li>
+  </ul>
+
+  <h3 id="s-primeira">Abrir pela primeira vez</h3>
+  <ol class="steps">
+    <li>Copie o <code>Lume.exe</code> para onde quiser (Área de Trabalho, Documentos, um pendrive).</li>
+    <li>Dê dois cliques nele. Se aparecer <strong>O Windows protegeu o computador</strong>, clique em <strong>Mais informações</strong> e depois em <strong>Executar assim mesmo</strong>. Isso só acontece na primeira vez.</li>
+    <li>Espere alguns segundos: na primeira vez o lançador prepara o Java e o aplicativo; depois o Spring Boot sobe e a janela do Lume abre no Edge, em modo aplicativo (sem barra de endereço).</li>
+    <li>A biblioteca abre vazia. Arraste PDFs, DOCX ou uma pasta para a janela, use <strong>Adicionar documentos</strong> ou cadastre uma pasta monitorada em <strong>Integrações</strong>.</li>
+  </ol>
+  <figure class="mid"><img src="../images/tela-vazia.png" alt=""><figcaption><b>Fig. 1</b>Primeira abertura: a biblioteca vazia, com os atalhos para escolher arquivos ou importar uma pasta.</figcaption></figure>
+  <div class="note tip"><span class="eyebrow">Experimente com os exemplos</span>O repositório traz a pasta <code>exemplos/</code> com 12 documentos fictícios (8 PDF e 4 DOCX). Arraste a pasta inteira para a janela para ver a biblioteca cheia, como nos prints deste manual.</div>
+
+  <h3 id="s-dados">Onde ficam os dados</h3>
+  <table>
+    <thead><tr><th style="width:26%">Situação</th><th>Pasta</th></tr></thead>
+    <tbody>
+      <tr><td>Padrão</td><td><code>%APPDATA%\Lume\Biblioteca</code> (por exemplo <code>C:\Users\voce\AppData\Roaming\Lume\Biblioteca</code>), a mesma das versões anteriores, então a biblioteca continua lá</td></tr>
+      <tr><td>Modo portátil</td><td><code>Lume-dados\Biblioteca</code>, ao lado do <code>Lume.exe</code></td></tr>
+      <tr><td>Escolhida por variável</td><td>o caminho em <code>LUME_DATA_DIR</code>, se ela existir</td></tr>
+    </tbody>
+  </table>
+  <p>Dentro da pasta ficam o banco <code>lume.db</code> (e os arquivos auxiliares <code>lume.db-wal</code> e <code>lume.db-shm</code>), a pasta <code>documentos\</code> com uma subpasta por documento (original, capa, HTML de leitura e imagens), a pasta <code>tmp\</code>, usada durante a importação e o backup, e o registro <code>lume.log</code>. As pastas monitoradas e os webhooks ficam guardados no próprio banco, na tabela de preferências. O perfil da janela (cache do Edge) fica em <code>%LOCALAPPDATA%\Lume\navegador</code>. O botão <strong>Abrir a pasta de dados</strong>, em Sistema, em Preferências e na paleta de comandos, abre o lugar certo no Explorador.</p>
+
+  <h3 id="s-portatil">Modo portátil</h3>
+  <p>Para levar a biblioteca num pendrive, crie uma pasta chamada exatamente <code>Lume-dados</code> ao lado do <code>Lume.exe</code> antes de abrir. A partir daí, banco, documentos e o perfil da janela ficam dentro dela (<code>Lume-dados\Biblioteca</code> e <code>Lume-dados\app</code>). A tela Sistema mostra <strong>Portátil</strong> quando esse modo está ativo.</p>
+
+  <h3 id="s-atualizar">Atualizar, backup e desinstalar</h3>
+  <ul>
+    <li><strong>Atualizar:</strong> feche o Lume e troque o <code>Lume.exe</code> pelo novo. A pasta de dados continua a mesma; a 2.1.0 não muda o esquema do banco, então uma biblioteca da 2.0 abre direto. Quem vem da versão 1 (Electron) só precisa informar de novo a chave de API, se usava um provedor externo.</li>
+    <li><strong>Backup:</strong> em <strong>Ferramentas → Backup completo</strong>, com o Lume aberto, gere um <code>.zip</code> com o banco e todos os arquivos (veja <a href="#s-backup">Backup completo</a>). Com o Lume fechado, copiar a pasta de dados inteira também funciona.</li>
+    <li><strong>Desinstalar:</strong> apague o <code>Lume.exe</code>, a pasta <code>%LOCALAPPDATA%\Lume</code> e, se quiser apagar também a biblioteca, a pasta <code>%APPDATA%\Lume</code>. Os arquivos de onde você importou os documentos nunca são alterados.</li>
+  </ul>
+</section>
+
+<!-- ===================== 04 GUIA DAS TELAS ===================== -->
+<section class="chapter" id="ch-telas">
+  <div class="chapter-head">
+    <div class="num">Capítulo 04</div>
+    <h2>Guia das telas</h2>
+    <p class="lede">A janela tem o menu lateral à esquerda (biblioteca, estantes, estatísticas, coleções, ferramentas, integrações, sistema e preferências) e, no alto, a busca, o botão <strong>Comandos</strong> e o botão de adicionar. O leitor ocupa a janela inteira.</p>
+  </div>
+
+  <div class="screen-head"><h3 id="s-biblioteca">Biblioteca</h3><span class="eyebrow">Tela inicial · /</span></div>
+  <figure><img src="../images/tela-biblioteca.png" alt="Biblioteca"><figcaption><b>Fig. 2</b> Biblioteca: cabeçalho com resumo e livro-caixa, continuar lendo, filtros em abas, etiquetas, seleção, ordenação e a grade de capas.</figcaption></figure>
+  <ul>
+    <li><strong>Cabeçalho</strong>: a data, a saudação e um resumo em uma frase com os números reais (documentos, em leitura, sendo preparados e com erro). À direita, o livro-caixa das estantes: Quero ler, Lendo e Lidos.</li>
+    <li><strong>Continuar lendo</strong> mostra os últimos documentos abertos que ainda não foram marcados como lidos, com a página e o progresso.</li>
+    <li><strong>Filtros</strong> em abas: Todos, PDF, DOCX, Quero ler, Lendo, Lidos, Favoritos e, quando houver, Processando e Com erro, com contadores.</li>
+    <li><strong>Etiquetas</strong> <span class="tag new">2.1.0</span>: abre a lista das etiquetas em uso (com a contagem) e filtra a biblioteca por uma delas; o filtro ativo aparece logo abaixo da barra, com um × para tirar.</li>
+    <li><strong>Selecionar</strong> <span class="tag new">2.1.0</span>: liga a seleção múltipla (veja a próxima seção).</li>
+    <li><strong>Ordem</strong>: adicionados recentemente, lidos recentemente, título, autor, mais páginas, maior tamanho e, numa busca, mais relevantes; dentro de uma coleção, a ordem da coleção.</li>
+    <li><strong>Grade ou lista</strong>: alterna entre cartões com capa e uma tabela compacta (com caixas de seleção); a escolha fica guardada.</li>
+    <li><strong>Favorito</strong>: a estrela no canto da capa marca e desmarca sem abrir o documento. <strong>Arrastar para coleção</strong>: solte um cartão sobre o nome de uma coleção no menu lateral.</li>
+  </ul>
+
+  <div class="screen-head page-break"><h3 id="s-selecao">Seleção e ações em lote <span class="tag new">2.1.0</span></h3><span class="eyebrow">Atalho S</span></div>
+  <figure><img src="../images/tela-selecao.png" alt="Seleção em lote"><figcaption><b>Fig. 3</b> Três documentos selecionados e a barra de ações em lote no rodapé.</figcaption></figure>
+  <p>Para agir sobre vários documentos de uma vez, ligue a seleção com o botão <strong>Selecionar</strong>, com a tecla <kbd>S</kbd> ou com <kbd>Shift</kbd> + clique num cartão. Cada capa ganha uma caixa no canto; com a seleção ligada, clicar no cartão marca e desmarca em vez de abrir. Na visualização em lista, cada linha tem uma caixa e o cabeçalho seleciona todos.</p>
+  <table>
+    <thead><tr><th style="width:24%">Botão da barra</th><th>O que faz</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Todos</strong></td><td>Marca (ou desmarca) todos os documentos carregados na tela. Também com <kbd>Ctrl</kbd> <kbd>A</kbd>.</td></tr>
+      <tr><td><strong>Estante</strong></td><td>Quero ler, Lendo, Lido ou tirar da estante.</td></tr>
+      <tr><td><strong>Coleção</strong></td><td>Adicionar a uma coleção existente, criar uma nova e já adicionar, ou (dentro de uma coleção) tirar dela.</td></tr>
+      <tr><td><strong>Mais</strong></td><td>Favoritar ou tirar dos favoritos; adicionar etiquetas (somam às que cada documento já tem); gerar a descrição de novo; ler os arquivos de novo; exportar só a seleção em CSV, JSON, BibTeX ou Markdown.</td></tr>
+      <tr><td><strong>Excluir</strong></td><td>Tira os documentos da biblioteca, depois de confirmar. Os arquivos originais continuam onde estavam.</td></tr>
+      <tr><td><strong>×</strong></td><td>Sai da seleção (também com <kbd>Esc</kbd>).</td></tr>
+    </tbody>
+  </table>
+  <p>Todas as ações usam uma única chamada à API (<code>POST /api/v1/documents/batch</code>, até 500 documentos), aplicada pelo núcleo com os mesmos serviços das ações individuais: os eventos ao vivo, os contadores e os webhooks continuam funcionando.</p>
+
+  <div class="screen-head page-break"><h3 id="s-paleta">Paleta de comandos <span class="tag new">2.1.0</span></h3><span class="eyebrow">Ctrl K</span></div>
+  <figure class="mid"><img src="../images/tela-paleta.png" alt="Paleta de comandos"><figcaption><b>Fig. 4</b> A paleta encontra documentos pelo título ou pelo texto, telas e ações.</figcaption></figure>
+  <p><kbd>Ctrl</kbd> <kbd>K</kbd> (ou o botão <strong>Comandos</strong> na barra superior) abre uma caixa única para fazer tudo pelo teclado. Digite parte de um nome, sem se preocupar com acentos:</p>
+  <ul>
+    <li><strong>Documentos</strong>: a partir de duas letras, a paleta busca no título, no autor, nas etiquetas e no texto completo e mostra os seis melhores, com a capa. <kbd>Enter</kbd> abre os detalhes.</li>
+    <li><strong>Coleções</strong>: abre a coleção pelo nome.</li>
+    <li><strong>Ir para</strong>: Biblioteca, Estantes, Coleções, Estatísticas, Ferramentas, Integrações, Sistema e Preferências.</li>
+    <li><strong>Ações</strong>: adicionar documentos, importar uma pasta, nova coleção, selecionar documentos, backup completo, exportar o catálogo em cada formato e abrir a pasta de dados.</li>
+    <li><strong>Aparência e ajuda</strong>: tema igual ao Windows, claro ou escuro; lista de atalhos.</li>
+    <li>A última linha, <strong>Buscar “…” na biblioteca</strong>, leva a busca para a grade, com filtros e ordenação.</li>
+  </ul>
+  <p>Use <kbd>↑</kbd> <kbd>↓</kbd> para escolher, <kbd>Enter</kbd> para executar e <kbd>Esc</kbd> para fechar.</p>
+
+  <div class="screen-head page-break"><h3 id="s-previa">Prévia ao passar o mouse</h3><span class="eyebrow">Descrição por IA</span></div>
+  <div class="fig-pair">
+    <figure><img src="../images/tela-previa.png" alt="Prévia"><figcaption><b>Fig. 5</b> A prévia com a descrição por IA e as etiquetas.</figcaption></figure>
+    <div>
+      <p>Pare o mouse sobre um cartão por um instante e a prévia abre ao lado: tipo, número de páginas, tamanho, estante, a descrição por IA (com a indicação de quem escreveu), as etiquetas e os botões <strong>Ler agora</strong> (ou <strong>Continuar</strong>) e <strong>Detalhes</strong>.</p>
+      <p>Ela também abre com o teclado, ao focar o cartão com <kbd>Tab</kbd>, e fica desligada enquanto a seleção em lote está ativa.</p>
+    </div>
+  </div>
+
+  <div class="screen-head"><h3 id="s-adicionar">Adicionar documentos</h3><span class="eyebrow">Atalho U</span></div>
+  <p>Quatro jeitos, todos com o mesmo resultado:</p>
+  <ol class="steps">
+    <li>Arrastar arquivos ou pastas do Explorador para qualquer lugar da janela. Os arquivos soltos são enviados ao núcleo Java pela própria janela (rota <code>/api/v1/desktop/upload</code>).</li>
+    <li><strong>Adicionar documentos</strong>, no alto (ou <kbd>U</kbd>), abre o seletor de arquivos do Windows. Nesse caso o Lume copia direto do disco, pelo caminho.</li>
+    <li>A seta ao lado do botão oferece <strong>Importar uma pasta inteira</strong>, que procura PDFs e DOCX em todas as subpastas.</li>
+    <li><strong>Pastas monitoradas</strong> <span class="tag new">2.1.0</span>: em Integrações, escolha pastas (Downloads, OneDrive, scanner) cujos arquivos novos entram sozinhos (veja o <a href="#s-pastas">capítulo 07</a>).</li>
+  </ol>
+  <figure class="mid"><img src="../images/tela-importando.png" alt="Importação"><figcaption><b>Fig. 6</b> A bandeja de importação acompanha cada arquivo: cópia, fila, leitura, descrição e pronto.</figcaption></figure>
+  <p>Cada arquivo é copiado para a pasta da biblioteca, com a impressão digital calculada no caminho; o original fica intocado. Se a mesma impressão digital já existir, o item aparece como <strong>Já estava na sua biblioteca</strong>. Arquivos <code>.doc</code> antigos, planilhas, arquivos vazios ou com conteúdo que não corresponde à extensão são recusados com a explicação na bandeja. O limite é de 500 MB por arquivo. Se você estiver dentro de uma coleção, o que for importado já entra nela.</p>
+  <p>Também dá para abrir arquivos direto no Lume: arraste PDFs ou DOCX sobre o ícone do <code>Lume.exe</code> ou use <strong>Abrir com</strong> no Explorador. Se o Lume já estiver aberto, a janela existente recebe os arquivos e vem para a frente.</p>
+
+  <div class="screen-head page-break"><h3 id="s-busca">Busca e etiquetas</h3><span class="eyebrow">Atalho /</span></div>
+  <figure><img src="../images/tela-busca.png" alt="Busca"><figcaption><b>Fig. 7</b> Busca por “cooperativa”, com o trecho encontrado no texto.</figcaption></figure>
+  <p>A busca procura no título, no autor, na descrição por IA, na sua descrição, nas etiquetas e no texto completo, sem diferenciar acentos nem maiúsculas. O trecho onde a palavra aparece vem destacado embaixo do cartão. Pressione <kbd>/</kbd> para ir à busca de qualquer tela, ou use a paleta (<kbd>Ctrl</kbd> <kbd>K</kbd>) para ver os melhores resultados sem sair da tela atual.</p>
+  <table>
+    <thead><tr><th style="width:32%">Você digita</th><th>O Lume procura</th></tr></thead>
+    <tbody>
+      <tr><td><code>contrato aluguel</code></td><td>documentos com as duas palavras (e palavras que começam com elas: “contratos”, “aluguéis”)</td></tr>
+      <tr><td><code>"reunião de planejamento"</code></td><td>a frase exata</td></tr>
+      <tr><td><code>python -flask</code></td><td>documentos com “python” que não falam de “flask”</td></tr>
+      <tr><td><code>seguran</code></td><td>partes do título também valem: “Política de segurança da informação”</td></tr>
+    </tbody>
+  </table>
+  <p>As etiquetas funcionam como um segundo filtro: clique numa etiqueta na página do documento ou escolha uma no botão <strong>Etiquetas</strong> da biblioteca. Busca, filtros e etiqueta se combinam.</p>
+
+  <div class="screen-head page-break"><h3 id="s-detalhe">Detalhes do documento</h3><span class="eyebrow">/documento/{id}</span></div>
+  <figure><img src="../images/tela-documento.png" alt="Detalhes"><figcaption><b>Fig. 8</b> Detalhes: capa, progresso, descrição por IA, etiquetas, estante, coleções e sumário.</figcaption></figure>
+  <ul>
+    <li><strong>Ler agora</strong> / <strong>Continuar lendo</strong> abre o leitor na página onde você parou. <strong>Salvar uma cópia</strong> (ícone de download) grava o arquivo original onde você escolher.</li>
+    <li>No menu <strong>⋯</strong>: editar título, autor e sua descrição; abrir no programa padrão; mostrar na pasta; exportar as anotações em Markdown; <strong>copiar o caminho do arquivo</strong> <span class="tag new">2.1.0</span>; ler o arquivo de novo; excluir da biblioteca.</li>
+    <li><strong>Gerar de novo</strong> refaz a descrição por IA (útil depois de trocar o provedor).</li>
+    <li><strong>Pergunte ao documento</strong> <span class="tag new">2.1.0</span>: veja a próxima seção.</li>
+    <li><strong>Etiquetas</strong>: as sugeridas pela IA têm o ícone de faísca; ao editar, as suas substituem as dela. Clique numa etiqueta para filtrar a biblioteca por ela.</li>
+    <li><strong>Minha leitura</strong>: estante (Quero ler, Lendo, Lido) e favorito. <strong>Coleções</strong>: clique para pôr ou tirar; <strong>Nova coleção</strong> cria e já inclui.</li>
+    <li><strong>Detalhes do arquivo</strong>: de onde ele foi importado, datas, metadados do PDF e a impressão digital SHA-256.</li>
+    <li><strong>Parecidos na sua biblioteca</strong> <span class="tag new">2.1.0</span>: até seis documentos com etiquetas em comum ou com os mesmos termos no título e nas etiquetas, para continuar a leitura no mesmo assunto.</li>
+  </ul>
+  <div class="note"><span class="eyebrow">Título e autor</span>O Lume usa o título e o autor gravados dentro do arquivo quando eles são bons (e o nome do arquivo quando não são). Depois que você edita, a sua versão é travada e não é mais trocada, nem quando o arquivo é lido de novo.</div>
+
+  <div class="screen-head page-break"><h3 id="s-pergunte">Pergunte ao documento <span class="tag new">2.1.0</span></h3><span class="eyebrow">POST /documents/{id}/ask</span></div>
+  <figure class="mid"><img src="../images/tela-pergunta.png" alt="Pergunte ao documento"><figcaption><b>Fig. 9</b> Uma pergunta respondida com os trechos numerados e o link para a página no leitor.</figcaption></figure>
+  <p>Na página de um documento pronto, escreva uma pergunta (de 3 a 500 caracteres) ou clique numa das sugestões: <em>Qual é o assunto principal?</em>, <em>Quais são as conclusões?</em>, <em>Que datas e prazos aparecem?</em>, <em>Quais números são citados?</em></p>
+  <ul>
+    <li><strong>Sem internet</strong> (resumo automático): o Lume procura no texto os trechos que mais combinam com a pergunta e mostra o melhor em destaque, seguido dos outros, numerados.</li>
+    <li><strong>Com um provedor de IA</strong>: os melhores trechos vão para o modelo, que escreve uma resposta curta em português citando os trechos como [1], [2]. Se o provedor falhar, a resposta cai para a busca local e o motivo aparece logo abaixo.</li>
+    <li>Em PDFs, cada trecho traz o link <strong>abrir na página N</strong>, que leva direto ao ponto no leitor.</li>
+  </ul>
+  <p>O funcionamento por dentro está em <a href="#s-qa">Como o “Pergunte” responde</a>.</p>
+
+  <div class="screen-head page-break"><h3 id="s-leitor-pdf">Leitor de PDF</h3><span class="eyebrow">pdf.js 5</span></div>
+  <figure><img src="../images/tela-leitor-pdf.png" alt="Leitor de PDF"><figcaption><b>Fig. 10</b> Leitor de PDF com o sumário à esquerda, um destaque em sálvia e as anotações à direita.</figcaption></figure>
+  <ul>
+    <li><strong>Navegação</strong>: rolagem contínua, campo de página, setas <kbd>←</kbd> <kbd>→</kbd>, <kbd>PgUp</kbd> <kbd>PgDn</kbd>, <kbd>Home</kbd> e <kbd>End</kbd>. <strong>Zoom</strong>: <kbd>+</kbd> e <kbd>−</kbd> ou os botões de lupa; clicar na porcentagem volta a ajustar à largura.</li>
+    <li><strong>Painel esquerdo</strong>: sumário do PDF (marcadores) e miniaturas das páginas.</li>
+    <li><strong>Destacar</strong>: selecione um trecho e escolha a cor (sálvia, rosé, ardósia ou camurça); <strong>Anotar</strong> abre a nota já com o trecho; o botão de copiar copia o texto. <strong>Marcador</strong>: o ícone de fita marca a página atual.</li>
+    <li><strong>Busca no documento</strong>: <kbd>Ctrl</kbd> <kbd>F</kbd>; <kbd>Enter</kbd> vai para a próxima ocorrência e <kbd>Shift</kbd> <kbd>Enter</kbd> para a anterior.</li>
+    <li><strong>Cor da página</strong>: Papel, Sépia ou Noite. <strong>Modo foco</strong> (<kbd>F</kbd>) esconde tudo menos o texto. A página e o progresso são salvos enquanto você lê; <kbd>Esc</kbd> sai do foco e depois do leitor.</li>
+  </ul>
+  <figure class="mid"><img src="../images/tela-leitor-noite.png" alt="Tema Noite"><figcaption><b>Fig. 11</b> O mesmo PDF no tema Noite, que inverte as páginas para ler no escuro.</figcaption></figure>
+
+  <div class="screen-head page-break"><h3 id="s-leitor-docx">Leitor de DOCX</h3><span class="eyebrow">HTML de leitura</span></div>
+  <figure><img src="../images/tela-leitor-docx.png" alt="Leitor de DOCX"><figcaption><b>Fig. 12</b> O DOCX vira texto de leitura, com o sumário a partir dos títulos do Word.</figcaption></figure>
+  <p>O DOCX é convertido em HTML de leitura pelo leitor em Java: títulos, listas, tabelas (com células mescladas), citações, links e imagens são mantidos; o resto da formatação do Word dá lugar a uma tipografia confortável em Literata. O sumário vem dos títulos (estilos Título 1, 2…). Os botões <strong>A−</strong> e <strong>A+</strong> ajustam o tamanho da letra, que fica guardado. Destaques e notas funcionam como no PDF e ficam presos ao parágrafo.</p>
+
+  <div class="screen-head page-break"><h3 id="s-estantes">Estantes</h3><span class="eyebrow">Quero ler · Lendo · Lidos</span></div>
+  <figure class="mid"><img src="../images/tela-estantes.png" alt="Estantes"><figcaption><b>Fig. 13</b> Estantes: arraste um documento de uma coluna para outra.</figcaption></figure>
+  <p>Três colunas, Quero ler, Lendo e Lidos. Abrir um documento no leitor coloca ele em Lendo automaticamente; arrastar entre colunas muda a estante; marcar como lido registra a data de término (que alimenta as Estatísticas e o evento <code>shelf.finished</code> dos webhooks). Para mover muitos de uma vez, use a seleção em lote na biblioteca.</p>
+
+  <div class="screen-head"><h3 id="s-colecoes">Coleções</h3><span class="eyebrow">/colecoes</span></div>
+  <div class="fig-pair" style="grid-template-columns:1fr 1fr">
+    <figure><img src="../images/tela-colecoes.png" alt="Coleções"><figcaption><b>Fig. 14</b> Coleções com a pilha das primeiras capas.</figcaption></figure>
+    <figure><img src="../images/tela-colecao.png" alt="Uma coleção"><figcaption><b>Fig. 15</b> Dentro de uma coleção: ordem própria.</figcaption></figure>
+  </div>
+  <p>Agrupe documentos por assunto, projeto ou turma. Um documento pode estar em várias coleções. Dentro de uma coleção, arraste os cartões para mudar a ordem, use <strong>Adicionar documentos</strong> para escolher entre os que você já tem e o menu <strong>⋯</strong> para renomear ou excluir (excluir a coleção não apaga os documentos). Uma pasta monitorada pode mandar o que importar direto para uma coleção.</p>
+
+  <div class="screen-head page-break"><h3 id="s-estatisticas">Estatísticas <span class="tag new">2.1.0</span></h3><span class="eyebrow">/estatisticas</span></div>
+  <figure><img src="../images/tela-estatisticas.png" alt="Estatísticas"><figcaption><b>Fig. 16</b> Estatísticas: indicadores, documentos adicionados e leituras concluídas por mês.</figcaption></figure>
+  <ul>
+    <li><strong>Indicadores</strong>: documentos (PDF, DOCX e espaço ocupado), páginas e palavras, lidos no ano e no total, em leitura e na fila “Quero ler”, páginas lidas e favoritos, anotações (destaques, notas e marcadores).</li>
+    <li><strong>Documentos adicionados</strong> e <strong>Leituras concluídas</strong>: barras dos últimos 12 meses, mês a mês.</li>
+    <li><strong>Assuntos mais frequentes</strong>: as dez etiquetas mais usadas. <strong>Formatos, idiomas e maiores arquivos</strong>: a divisão por tipo e idioma e os cinco maiores documentos, com link.</li>
+  </ul>
+  <p>Os números vêm direto do banco local (rota <code>GET /api/v1/insights</code>) e se atualizam sozinhos quando algo muda. As consultas estão no manual do banco de dados.</p>
+
+  <div class="screen-head page-break"><h3 id="s-ferramentas">Ferramentas <span class="tag new">2.1.0</span></h3><span class="eyebrow">/ferramentas</span></div>
+  <figure><img src="../images/tela-ferramentas.png" alt="Ferramentas"><figcaption><b>Fig. 17</b> Ferramentas: backup, exportação e manutenção, com o resultado da verificação.</figcaption></figure>
+  <table>
+    <thead><tr><th style="width:27%">Ferramenta</th><th>O que faz</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Backup completo</strong></td><td>Banco, documentos, capas, anotações e progresso num único <code>.zip</code>, salvo onde você escolher. Depois, <strong>Mostrar no Explorador</strong>.</td></tr>
+      <tr><td><strong>Exportar o catálogo</strong></td><td>Planilha (CSV), JSON, BibTeX ou Markdown, com título, autor, páginas, etiquetas, estante, coleções e descrição de todos os documentos.</td></tr>
+      <tr><td><strong>Notas para Obsidian e Notion</strong></td><td>Uma nota Markdown por documento, numa pasta escolhida, com propriedades, descrição, destaques e notas.</td></tr>
+      <tr><td><strong>Verificar a biblioteca</strong></td><td>Confere o banco (<code>PRAGMA integrity_check</code>), se cada documento ainda tem o arquivo guardado e se sobrou pasta ou temporário.</td></tr>
+      <tr><td><strong>Reconstruir o índice de busca</strong></td><td>Refaz a busca em texto completo (FTS5) de todos os documentos.</td></tr>
+      <tr><td><strong>Otimizar o banco de dados</strong></td><td>Compacta o <code>lume.db</code> (<code>VACUUM</code>) e atualiza as estatísticas do SQLite (<code>PRAGMA optimize</code>); mostra o tamanho antes e depois.</td></tr>
+      <tr><td><strong>Limpar sobras</strong></td><td>Apaga pastas de documentos já excluídos e temporários de importações interrompidas.</td></tr>
+      <tr><td><strong>Descrever tudo de novo</strong></td><td>Põe todos os documentos prontos na fila da descrição, com o provedor atual (pede confirmação; as etiquetas escolhidas por você continuam).</td></tr>
+    </tbody>
+  </table>
+  <p>Os formatos de exportação e o backup estão detalhados no <a href="#ch-integracoes">capítulo 07</a>.</p>
+
+  <div class="screen-head page-break"><h3 id="s-integracoes-tela">Integrações <span class="tag new">2.1.0</span></h3><span class="eyebrow">/integracoes</span></div>
+  <figure><img src="../images/tela-integracoes.png" alt="Integrações"><figcaption><b>Fig. 18</b> Integrações: pastas monitoradas, provedor de IA, webhooks e atalhos para outros programas.</figcaption></figure>
+  <ul>
+    <li><strong>Pastas monitoradas</strong>: <strong>Adicionar pasta…</strong> abre o seletor do Windows; cada linha mostra o caminho, quantos documentos já entraram e quando foi a última verificação, com a coleção de destino, a chave para pausar, o atalho para o Explorador e a lixeira. <strong>Verificar agora</strong> não espera o próximo ciclo.</li>
+    <li><strong>Inteligência artificial</strong>: o provedor em uso e o atalho para configurá-lo.</li>
+    <li><strong>Webhooks</strong>: endereço, eventos, formato (automático, JSON, Slack ou Discord) e segredo opcional; cada webhook tem a chave para pausar, o botão <strong>Testar</strong> e o resultado do último envio. Um quadro mostra o formato do JSON enviado.</li>
+    <li><strong>Outros programas</strong>: exportação direta para Excel e Google Planilhas, scripts e automações, Zotero e Mendeley, Notion e Obsidian.</li>
+  </ul>
+
+  <div class="screen-head page-break"><h3 id="s-sistema">Sistema</h3><span class="eyebrow">/sistema</span></div>
+  <figure><img src="../images/tela-sistema.png" alt="Sistema"><figcaption><b>Fig. 19</b> Sistema: contadores, serviços, pasta da biblioteca e as últimas etapas processadas.</figcaption></figure>
+  <p>Mostra o que o Lume está fazendo: quantos documentos estão prontos, processando ou com erro, o estado do leitor de PDF (PDFBox) e das filas, o provedor de IA, o tamanho do banco, a pasta de dados, a versão do Lume e do Java e as últimas etapas com a duração e, quando houver, o motivo da falha. <strong>Tentar todos de novo</strong> devolve para a fila os documentos com erro.</p>
+
+  <div class="screen-head"><h3 id="s-preferencias">Preferências</h3><span class="eyebrow">/preferencias</span></div>
+  <figure class="mid"><img src="../images/tela-preferencias.png" alt="Preferências"><figcaption><b>Fig. 20</b> Preferências: perfil, aparência, inteligência artificial com provedores prontos, pasta de dados, atalhos e versão.</figcaption></figure>
+  <p>O nome usado na saudação (o padrão é o seu usuário do Windows), o tema (igual ao Windows, claro ou escuro), a <strong>Inteligência artificial</strong> com os provedores prontos e o botão <strong>Testar</strong>, a pasta de dados, os atalhos de teclado e as versões dos componentes (Lume, Java, Spring Boot, Tomcat, PDFBox e SQLite).</p>
+
+  <div class="screen-head page-break"><h3 id="s-escuro">Tema escuro</h3><span class="eyebrow">Claro · escuro · igual ao Windows</span></div>
+  <figure><img src="../images/tela-escuro.png" alt="Tema escuro"><figcaption><b>Fig. 21</b> Biblioteca no tema escuro.</figcaption></figure>
+  <figure class="mid"><img src="../images/tela-documento-escuro.png" alt="Detalhes no tema escuro"><figcaption><b>Fig. 22</b> Detalhes no tema escuro.</figcaption></figure>
+  <p>O tema acompanha o Windows por padrão e pode ser fixado em claro ou escuro no menu do perfil, em Preferências ou na paleta de comandos. No escuro, a assinatura passa a ser o rosé claro <code>#E3A3B0</code>.</p>
+</section>
+
+<!-- ===================== 05 TECLADO ===================== -->
+<section class="chapter" id="ch-teclado">
+  <div class="chapter-head">
+    <div class="num">Capítulo 05</div>
+    <h2>Teclado e acessibilidade</h2>
+    <p class="lede">Quase tudo pode ser feito sem o mouse. A tecla <kbd>?</kbd> abre a lista de atalhos em qualquer tela, e a paleta de comandos reúne telas, ações e documentos.</p>
+  </div>
+
+  <h3 id="s-atalhos">Atalhos de teclado</h3>
+  <table class="keys">
+    <thead><tr><th>Tecla</th><th style="width:20%">Onde</th><th>O que faz</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Ctrl</kbd> <kbd>K</kbd> <span class="tag new">2.1.0</span></td><td>Qualquer tela</td><td>Abre ou fecha a paleta de comandos</td></tr>
+      <tr><td><kbd>?</kbd> <span class="tag new">2.1.0</span></td><td>Qualquer tela</td><td>Lista de atalhos</td></tr>
+      <tr><td><kbd>/</kbd></td><td>Qualquer tela</td><td>Vai para a busca</td></tr>
+      <tr><td><kbd>U</kbd></td><td>Qualquer tela</td><td>Adicionar documentos</td></tr>
+      <tr><td><kbd>S</kbd> <span class="tag new">2.1.0</span></td><td>Biblioteca</td><td>Liga a seleção múltipla (de outras telas, volta para a biblioteca)</td></tr>
+      <tr><td><kbd>Shift</kbd> + clique <span class="tag new">2.1.0</span></td><td>Biblioteca</td><td>Seleciona um documento sem abrir</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>A</kbd> <span class="tag new">2.1.0</span></td><td>Seleção</td><td>Seleciona todos os documentos carregados</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Seleção · paleta · leitor</td><td>Sai da seleção, fecha a paleta ou sai do foco e depois do leitor</td></tr>
+      <tr><td><kbd>↑</kbd> <kbd>↓</kbd> <kbd>Enter</kbd></td><td>Paleta</td><td>Escolhe e executa</td></tr>
+      <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Leitor de PDF</td><td>Página anterior e próxima</td></tr>
+      <tr><td><kbd>+</kbd> <kbd>−</kbd></td><td>Leitor</td><td>Zoom (PDF) ou tamanho da letra (DOCX)</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Leitor</td><td>Modo foco</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>F</kbd></td><td>Leitor</td><td>Buscar dentro do documento</td></tr>
+      <tr><td><kbd>Ctrl</kbd> <kbd>Enter</kbd></td><td>Nota</td><td>Salvar a nota</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s-acessibilidade">Acessibilidade</h3>
+  <ul>
+    <li><strong>Pular para o conteúdo</strong>: o primeiro <kbd>Tab</kbd> da janela mostra o link que leva direto à área principal.</li>
+    <li><strong>Foco visível</strong>: anel na cor de assinatura em todos os controles; a prévia dos cartões abre também ao focar com <kbd>Tab</kbd>.</li>
+    <li><strong>Rótulos para leitores de tela</strong>: botões de ícone, interruptores (<code>role="switch"</code>), a barra de seleção (<code>role="toolbar"</code>), a paleta (<code>role="dialog"</code> e <code>listbox</code>) e as respostas do “Pergunte ao documento” (<code>aria-live</code>).</li>
+    <li><strong>Movimento reduzido</strong>: com a opção do Windows ligada (<code>prefers-reduced-motion</code>), animações e transições são desligadas.</li>
+    <li><strong>Contraste</strong>: texto e fundo seguem o nível AA nos dois temas; a cor nunca é a única pista (estantes também têm nome, seleção também tem ícone).</li>
+  </ul>
+</section>
+
+<!-- ===================== 06 IA ===================== -->
+<section class="chapter" id="ch-ia">
+  <div class="chapter-head">
+    <div class="num">Capítulo 06</div>
+    <h2>Inteligência artificial</h2>
+    <p class="lede">Cada documento recebe uma descrição de duas ou três frases e até quatro etiquetas, e pode ser consultado pelo “Pergunte ao documento”. Por padrão tudo isso é feito no próprio computador, sem internet e sem custo.</p>
+  </div>
+
+  <h3 id="s-provedores">Provedores prontos <span class="tag new">2.1.0</span></h3>
+  <p>Em <strong>Preferências → Inteligência artificial</strong>, um clique num dos cartões preenche o provedor, o endereço e um modelo sugerido (que pode ser trocado). A mesma configuração vale para a descrição, as etiquetas e o “Pergunte ao documento”.</p>
+  <table>
+    <thead><tr><th style="width:18%">Cartão</th><th style="width:16%">Provedor</th><th style="width:38%">Endereço da API</th><th>Modelo sugerido</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Sem internet</strong></td><td>local</td><td>—</td><td>resumo extrativo em Java</td></tr>
+      <tr><td><strong>Claude</strong></td><td>anthropic</td><td><code>https://api.anthropic.com</code></td><td><code>claude-haiku-5-5</code></td></tr>
+      <tr><td><strong>OpenAI</strong></td><td>openai</td><td><code>https://api.openai.com/v1</code></td><td><code>gpt-4o-mini</code></td></tr>
+      <tr><td><strong>Google Gemini</strong></td><td>openai</td><td><code>https://generativelanguage.googleapis.com/v1beta/openai</code></td><td><code>gemini-2.5-flash</code></td></tr>
+      <tr><td><strong>Groq</strong></td><td>openai</td><td><code>https://api.groq.com/openai/v1</code></td><td><code>llama-3.3-70b-versatile</code></td></tr>
+      <tr><td><strong>OpenRouter</strong></td><td>openai</td><td><code>https://openrouter.ai/api/v1</code></td><td><code>openrouter/auto</code></td></tr>
+      <tr><td><strong>Mistral</strong></td><td>openai</td><td><code>https://api.mistral.ai/v1</code></td><td><code>mistral-small-latest</code></td></tr>
+      <tr><td><strong>DeepSeek</strong></td><td>openai</td><td><code>https://api.deepseek.com/v1</code></td><td><code>deepseek-chat</code></td></tr>
+      <tr><td><strong>Ollama</strong></td><td>openai</td><td><code>http://localhost:11434/v1</code></td><td><code>llama3.1</code> (no computador)</td></tr>
+      <tr><td><strong>LM Studio</strong></td><td>openai</td><td><code>http://localhost:1234/v1</code></td><td>o modelo carregado (no computador)</td></tr>
+    </tbody>
+  </table>
+  <p>O <strong>resumo automático</strong> escolhe as frases que melhor representam o texto, ignorando capa, cabeçalhos, rodapés e títulos (<code>LocalSummarizer</code>); as etiquetas vêm das palavras e pares de palavras mais característicos. Os demais cartões usam a API de Mensagens da Anthropic (Claude) ou a rota <code>/chat/completions</code> das APIs compatíveis com OpenAI.</p>
+
+  <h3 id="s-configurar">Como configurar</h3>
+  <ol class="steps">
+    <li>Abra <strong>Preferências → Inteligência artificial</strong> (ou <strong>Integrações → Configurar o provedor</strong>).</li>
+    <li>Clique no cartão do provedor. Cole a chave de API, quando o serviço pedir; para Ollama e LM Studio basta o modelo instalado.</li>
+    <li>Clique em <strong>Testar</strong>: o Lume pede a descrição de um texto curto e mostra o resultado (com o tempo) ou o erro.</li>
+    <li>Clique em <strong>Salvar</strong>. Vale para os próximos documentos e para o “Pergunte”; para os que já existem, use <strong>Gerar de novo</strong> nos detalhes, a seleção em lote ou <strong>Ferramentas → Descrever tudo de novo</strong>.</li>
+  </ol>
+
+  <h3 id="s-qa">Como o “Pergunte” responde <span class="tag new">2.1.0</span></h3>
+  <ol class="steps">
+    <li><strong>Trechos</strong>: o texto do documento (guardado em <code>document_content</code>) é dividido em trechos de 400 a 700 caracteres, respeitando parágrafos; no PDF, cada trecho guarda a página (as páginas vêm separadas por <code>\f</code>).</li>
+    <li><strong>Pontuação</strong>: a pergunta vira termos sem acento e sem palavras vazias (português e inglês), com um radical simples; cada trecho recebe uma nota BM25 (<code>PassageFinder</code>, k1 = 1,4 e b = 0,72).</li>
+    <li><strong>Sem internet</strong>: a resposta são as frases do melhor trecho que mais combinam com a pergunta; os quatro melhores trechos aparecem numerados. Se nenhum trecho combina, o Lume diz isso e lembra o resumo do documento.</li>
+    <li><strong>Com provedor</strong>: os seis melhores trechos vão numerados para o modelo, com a instrução de responder em português, em no máximo cinco frases, usando só os trechos e citando [1], [2]. Se o provedor falhar, a resposta local assume e o aviso explica o motivo.</li>
+  </ol>
+
+  <h3 id="s-enviado">Dados enviados e chave</h3>
+  <p>Para a <strong>descrição</strong>, vão só o título, o autor, o tipo, o número de páginas, até 30 títulos do sumário e um trecho do texto (por padrão até 12.000 caracteres: três quartos do começo e um quarto do meio). Para o <strong>“Pergunte”</strong>, vão o título, o autor, a pergunta e os seis trechos escolhidos. O arquivo original nunca é enviado. Com o resumo automático, nada sai do computador. As chamadas usam o cliente HTTP do próprio Java, que respeita o proxy do sistema.</p>
+  <div class="note"><span class="eyebrow">Chave de API</span>A chave é cifrada com o cofre do Windows (DPAPI, chamado pelo Java via JNA) antes de ir para o banco, com o prefixo <code>dpapi:</code>; só o seu usuário do Windows consegue abrir. Ela não volta para a tela depois de salva e pode ser apagada em Preferências. Chaves salvas pela versão 1 (Electron) não abrem no Java: informe de novo.</div>
+  <h4>Quando o provedor falha</h4>
+  <p>Sem internet, chave errada, limite de uso ou resposta fora do formato: o Lume não deixa o documento parado. Ele usa o resumo automático e registra o motivo na etapa (veja em <strong>Sistema → Últimas etapas</strong>). Textos com menos de 200 caracteres, como PDFs digitalizados sem texto, vão direto para o resumo automático.</p>
+</section>
+
+<!-- ===================== 07 INTEGRAÇÕES ===================== -->
+<section class="chapter" id="ch-integracoes">
+  <div class="chapter-head">
+    <div class="num">Capítulo 07</div>
+    <h2>Integrações e exportação <span class="tag new">2.1.0</span></h2>
+    <p class="lede">O Lume conversa com as pastas e os programas que você já usa: importa sozinho o que aparece numa pasta, avisa outros sistemas quando algo acontece e entrega o catálogo e as notas nos formatos de cada ferramenta.</p>
+  </div>
+
+  <h3 id="s-pastas">Pastas monitoradas</h3>
+  <p>Em <strong>Integrações → Adicionar pasta…</strong>, escolha até 10 pastas. Enquanto o Lume está aberto, o <code>WatchFolderService</code> verifica as pastas ativas a cada 60 segundos (a primeira verificação acontece cerca de 20 segundos depois de abrir) e importa os PDFs e DOCX novos, inclusive das subpastas, pelo mesmo caminho de uma importação normal.</p>
+  <ul>
+    <li><strong>Coleção de destino</strong>: o que entrar por aquela pasta pode ir direto para uma coleção.</li>
+    <li><strong>Pausar</strong>: a chave de cada pasta suspende a verificação sem perder a configuração.</li>
+    <li><strong>Verificar agora</strong>: varre todas as pastas na hora e mostra quantos documentos novos entraram.</li>
+    <li><strong>Sem repetição</strong>: arquivos cujo caminho já é a origem de um documento são pulados; repetidos (mesmo SHA-256) e recusados ficam numa lista em memória pelo caminho, tamanho e data, e não são tentados de novo enquanto não mudarem.</li>
+    <li><strong>Arquivo ainda sendo copiado</strong>: na verificação automática, arquivos alterados há menos de 5 segundos esperam a próxima rodada.</li>
+    <li>Quando algo entra, a janela mostra um aviso (“3 documentos novos de ‘Downloads’”) e os contadores se atualizam (evento <code>watch.imported</code>).</li>
+  </ul>
+  <div class="note tip"><span class="eyebrow">Boas pastas para monitorar</span>Downloads; a pasta do scanner; pastas sincronizadas do OneDrive, Google Drive ou Dropbox (só os arquivos já baixados no computador são lidos); a pasta onde um sistema da empresa salva relatórios.</div>
+
+  <h3 id="s-webhooks">Webhooks</h3>
+  <p>Um webhook é um endereço que recebe um aviso (um <code>POST</code> com JSON) quando algo acontece no Lume. Serve para ligar o Lume a n8n, Make, Zapier, Power Automate, Slack, Discord, Microsoft Teams (por um fluxo) ou ao seu próprio servidor. Cadastre até 10.</p>
+  <table>
+    <thead><tr><th style="width:26%">Evento</th><th style="width:24%">Rótulo na tela</th><th>Quando dispara</th></tr></thead>
+    <tbody>
+      <tr><td><code>document.ready</code></td><td>Documento pronto</td><td>O documento terminou de ser lido e descrito (é o evento padrão)</td></tr>
+      <tr><td><code>document.created</code></td><td>Documento importado</td><td>Um arquivo novo entrou na biblioteca (por qualquer caminho, inclusive pastas monitoradas)</td></tr>
+      <tr><td><code>document.deleted</code></td><td>Documento excluído</td><td>Um documento saiu da biblioteca (o corpo leva só o <code>id</code>)</td></tr>
+      <tr><td><code>annotation.created</code></td><td>Nova anotação</td><td>Um destaque, nota ou marcador foi criado (o corpo inclui a anotação)</td></tr>
+      <tr><td><code>shelf.finished</code></td><td>Leitura concluída</td><td>O documento foi para a estante Lidos</td></tr>
+    </tbody>
+  </table>
+  <h4>Formatos</h4>
+  <table>
+    <thead><tr><th style="width:18%">Formato</th><th>Corpo enviado</th></tr></thead>
+    <tbody>
+      <tr><td><strong>JSON</strong></td><td>O objeto completo abaixo, para automações e servidores próprios.</td></tr>
+      <tr><td><strong>Slack</strong></td><td><code>{"text": "📄 Pronto no Lume: “Relatório anual” — …"}</code>; escolhido sozinho para endereços <code>hooks.slack.com</code>.</td></tr>
+      <tr><td><strong>Discord</strong></td><td><code>{"content": "…"}</code>, com a mesma frase; escolhido sozinho para <code>discord.com/api/webhooks</code>.</td></tr>
+    </tbody>
+  </table>
+  <pre><code>POST https://seu-servidor/lume
+Content-Type: application/json
+User-Agent: Lume-Desktop
+X-Lume-Event: document.ready
+X-Lume-Signature: sha256=3f1c…   (só quando há segredo)
+
+{
+  "event": "document.ready",
+  "sent_at": "2026-10-27T13:00:00.000Z",
+  "app": "Lume",
+  "document": {
+    "id": "6f1e…", "title": "Relatório anual", "author": "Equipe financeira",
+    "kind": "pdf", "page_count": 42,
+    "summary": "Resultados do ano com…", "tags": ["finanças", "relatório"]
+  }
+}</code></pre>
+  <h4>Assinatura e entrega</h4>
+  <p>Com um <strong>segredo</strong>, cada envio leva o cabeçalho <code>X-Lume-Signature: sha256=&lt;HMAC-SHA256 do corpo&gt;</code>; quem recebe recalcula o HMAC com o mesmo segredo e descarta o que não confere. O segredo é guardado cifrado pelo cofre do Windows (DPAPI), como a chave da IA, e nunca volta para a tela.</p>
+  <pre><code># Conferir a assinatura (Python)
+import hmac, hashlib
+esperado = "sha256=" + hmac.new(SEGREDO.encode(), corpo_bruto, hashlib.sha256).hexdigest()
+valido = hmac.compare_digest(esperado, request.headers["X-Lume-Signature"])</code></pre>
+  <p>Os envios saem em segundo plano, um fio só para webhooks, com tempo limite de 10 segundos; o resultado (código HTTP ou erro) e a hora do último envio aparecem na linha do webhook. <strong>Testar</strong> manda na hora um evento de exemplo e mostra a resposta.</p>
+
+  <h3 id="s-exportar">Exportar para outros programas</h3>
+  <table>
+    <thead><tr><th style="width:17%">Formato</th><th style="width:25%">Para</th><th>Conteúdo</th></tr></thead>
+    <tbody>
+      <tr><td><strong>CSV</strong></td><td>Excel, Google Planilhas, LibreOffice</td><td>Separado por <code>;</code>, em UTF-8 com BOM (abre com acentos no Excel em português). Colunas: Título, Autor, Tipo, Páginas, Palavras, Tamanho (bytes), Estante, Favorito, Progresso (%), Etiquetas e Coleções (separadas por <code>|</code>), Idioma, Adicionado em, Terminado em, Arquivo original, Descrição.</td></tr>
+      <tr><td><strong>JSON</strong></td><td>Scripts, n8n, Make, Zapier</td><td>Uma lista com os mesmos campos, mais <code>id</code> e o resumo da IA.</td></tr>
+      <tr><td><strong>BibTeX</strong></td><td>Zotero, Mendeley, JabRef, LaTeX</td><td>Uma entrada <code>@misc</code> por documento, com chave estável (sobrenome, ano e primeira palavra do título), <code>title</code>, <code>author</code>, <code>year</code>, <code>keywords</code>, <code>note</code> (a descrição) e <code>file</code>.</td></tr>
+      <tr><td><strong>Markdown</strong></td><td>Notion, GitHub, wikis</td><td>Catálogo agrupado por estante, com título, autor, páginas, etiquetas e descrição.</td></tr>
+      <tr><td><strong>Notas .md</strong></td><td>Obsidian, Logseq, Notion, Joplin</td><td>Uma nota por documento, numa pasta escolhida: propriedades YAML (<code>title</code>, <code>author</code>, <code>kind</code>, <code>pages</code>, <code>tags</code>, <code>shelf</code>, <code>favorite</code>, <code>progress</code>, <code>collections</code>, <code>added</code>, <code>finished</code>, <code>source</code>, <code>lume_id</code>), <strong>Descrição</strong> e <strong>Destaques e notas</strong> por página, com as citações.</td></tr>
+    </tbody>
+  </table>
+  <p>O catálogo inteiro sai por <strong>Ferramentas</strong>, <strong>Integrações</strong> ou pela paleta; só alguns documentos, pela seleção em lote (<strong>Mais → Exportar seleção</strong>). O arquivo é salvo pelo diálogo do Windows com o nome <code>lume-catalogo-AAAA-MM-DD</code>.</p>
+
+  <h3 id="s-backup">Backup completo</h3>
+  <ol class="steps">
+    <li>Em <strong>Ferramentas → Backup completo</strong> (ou no menu do perfil e na paleta), escolha onde salvar <code>Lume-backup-AAAA-MM-DD.zip</code>. Pode ser feito com o Lume aberto.</li>
+    <li>O núcleo tira uma cópia consistente do banco com <code>VACUUM INTO</code> (sem parar o que estiver acontecendo) e grava no zip o <code>lume.db</code>, a pasta <code>documentos/</code> inteira (originais, capas, HTML de leitura e imagens) e um <code>LEIAME.txt</code> com as instruções.</li>
+    <li>Para restaurar: feche o Lume, abra a pasta de dados, guarde (ou apague) <code>lume.db</code>, <code>lume.db-wal</code>, <code>lume.db-shm</code> e <code>documentos</code>, extraia o zip ali dentro e abra o Lume de novo.</li>
+  </ol>
+  <div class="note warn"><span class="eyebrow">Chaves e segredos</span>A chave de API e os segredos dos webhooks são cifrados para a sua conta do Windows. Num backup restaurado em outro computador eles não abrem: informe de novo em Preferências e em Integrações.</div>
+</section>
+
+<!-- ===================== 08 ARQUITETURA ===================== -->
+<section class="chapter" id="ch-arq">
+  <div class="chapter-head">
+    <div class="num">Capítulo 08</div>
+    <h2>Arquitetura</h2>
+    <p class="lede">Por dentro, o Lume para Windows repete as peças da versão web com o núcleo em Java: o servidor virou uma aplicação Spring Boot que só atende o próprio computador, o WebSocket virou Server-Sent Events e PostgreSQL e Redis deram lugar ao SQLite e a uma fila em memória.</p>
+  </div>
+
+  <div class="diagram">
+  <svg viewBox="0 0 660 300" xmlns="http://www.w3.org/2000/svg" font-family="Public Sans" font-size="10">
+    <defs>
+      <marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#1E252C"/></marker>
+      <marker id="arA" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#9C4A5B"/></marker>
+    </defs>
+    <g stroke="#1E252C" stroke-width="0.8">
+      <rect x="10" y="14" width="150" height="54" fill="#FFFFFF"/>
+      <rect x="255" y="14" width="150" height="54" fill="#F4F1DE"/>
+      <rect x="500" y="14" width="150" height="54" fill="#EDF2E6" stroke="#556B47"/>
+      <rect x="10" y="124" width="150" height="54" fill="#FFFFFF"/>
+      <rect x="255" y="124" width="150" height="54" fill="#F4F1DE"/>
+      <rect x="500" y="124" width="150" height="54" fill="#FFFFFF"/>
+      <rect x="10" y="234" width="150" height="54" fill="#FFFFFF"/>
+      <rect x="255" y="234" width="150" height="54" fill="#F4F1DE"/>
+      <rect x="500" y="234" width="150" height="54" fill="#F4F1DE"/>
+    </g>
+    <g fill="#9C4A5B"><rect x="255" y="14" width="150" height="3"/><rect x="255" y="124" width="150" height="3"/><rect x="10" y="124" width="150" height="3"/><rect x="10" y="234" width="150" height="3"/></g>
+    <g font-family="Literata" font-weight="600" font-size="12" fill="#1E252C" text-anchor="middle">
+      <text x="85" y="38">Janela · Edge</text>
+      <text x="330" y="38">Núcleo · Spring Boot 4</text>
+      <text x="575" y="38" fill="#556B47">Provedor de IA</text>
+      <text x="85" y="148">Pastas monitoradas</text>
+      <text x="330" y="148">Pipeline</text>
+      <text x="575" y="148">PDFBox · DOCX</text>
+      <text x="85" y="258">Webhooks</text>
+      <text x="330" y="258">lume.db · SQLite</text>
+      <text x="575" y="258">documentos/</text>
+    </g>
+    <g font-size="8.5" fill="#3B4651" text-anchor="middle">
+      <text x="85" y="54">HTML · CSS · JS · pdf.js</text>
+      <text x="330" y="54">API /api/v1 · SSE · 127.0.0.1</text>
+      <text x="575" y="54">opcional · Claude · OpenAI · Ollama</text>
+      <text x="85" y="164">Downloads · OneDrive · scanner</text>
+      <text x="330" y="164">ExecutorService · retentativas</text>
+      <text x="575" y="164">texto · sumário · capa · HTML</text>
+      <text x="85" y="274">n8n · Make · Slack · Discord</text>
+      <text x="330" y="274">JdbcTemplate · FTS5 · settings</text>
+      <text x="575" y="274">originais · capas · imagens</text>
+    </g>
+    <g stroke="#1E252C" stroke-width="0.8" fill="none">
+      <line x1="160" y1="34" x2="253" y2="34" marker-end="url(#ar)"/>
+      <line x1="255" y1="50" x2="162" y2="50" marker-end="url(#ar)"/>
+      <line x1="330" y1="68" x2="330" y2="122" marker-end="url(#ar)"/>
+      <line x1="160" y1="151" x2="253" y2="151" marker-end="url(#ar)"/>
+      <line x1="405" y1="151" x2="498" y2="151" marker-end="url(#ar)"/>
+      <line x1="330" y1="178" x2="330" y2="232" marker-end="url(#ar)"/>
+      <line x1="575" y1="178" x2="575" y2="232" marker-end="url(#ar)"/>
+    </g>
+    <g stroke="#9C4A5B" stroke-width="0.8" fill="none" stroke-dasharray="3 2">
+      <line x1="405" y1="41" x2="498" y2="41" marker-end="url(#arA)"/>
+      <line x1="275" y1="178" x2="150" y2="232" marker-end="url(#arA)"/>
+    </g>
+    <g font-family="Plex Mono" font-size="7.5" fill="#66707A">
+      <text x="178" y="29">fetch · cookie</text>
+      <text x="196" y="62">SSE</text>
+      <text x="336" y="98">fila</text>
+      <text x="172" y="146">importa · 60 s</text>
+      <text x="420" y="146">extract</text>
+      <text x="336" y="208">SQL</text>
+      <text x="581" y="208">capas · HTML</text>
+      <text x="408" y="36" font-size="7">descrição · pergunta</text>
+      <text x="200" y="224">eventos · POST JSON</text>
+    </g>
+    <text x="330" y="8" font-family="Plex Mono" font-size="7" fill="#9C4A5B" text-anchor="middle" letter-spacing="0.8">LUME.EXE · JAVA 21 REDUZIDO (JLINK) + LUME.JAR · TUDO EM 127.0.0.1</text>
+  </svg>
+  </div>
+
+  <table>
+    <thead><tr><th style="width:17%">Peça</th><th style="width:24%">Onde está</th><th>O que faz</th></tr></thead>
+    <tbody>
+      <tr><td>Lançador</td><td><code>packaging/windows/</code></td><td>O <code>Lume.exe</code> (NSIS): extrai o Java reduzido e o aplicativo e abre o Java com a tela de abertura.</td></tr>
+      <tr><td>Aplicação</td><td><code>LumeApplication</code>, <code>desktop/</code></td><td>Pasta de dados, instância única, porta local, janela do Edge e encerramento quando a janela fecha.</td></tr>
+      <tr><td>API local</td><td><code>web/</code></td><td>Rotas REST (<code>/api/v1/documents</code>…), <code>/api/v1/desktop/*</code>, <code>/api/v1/tools/*</code>, <code>/api/v1/integrations/*</code> e <code>/api/v1/events</code>, com Spring MVC.</td></tr>
+      <tr><td>Biblioteca</td><td><code>library/</code></td><td>Importação com SHA-256, busca FTS5, etiquetas, leitura, anotações, coleções, ações em lote (<code>BatchService</code>), parecidos (<code>DiscoveryService</code>) e estatísticas (<code>InsightsService</code>).</td></tr>
+      <tr><td>Pipeline</td><td><code>pipeline/</code></td><td>Filas de leitura e descrição, tentativas, recuperação e a tela Sistema.</td></tr>
+      <tr><td>Processador</td><td><code>processing/</code>, <code>docx/</code></td><td>PDFBox (texto, sumário, metadados, capa), leitor de DOCX (zip + StAX → HTML), capas Java2D e higienização com jsoup.</td></tr>
+      <tr><td>IA</td><td><code>ai/</code></td><td>Resumo local, provedores (Claude e compatíveis com OpenAI) e a busca de trechos do “Pergunte” (<code>PassageFinder</code>).</td></tr>
+      <tr><td>Ferramentas</td><td><code>tools/</code></td><td>Backup em zip, exportação do catálogo e das notas, verificação e manutenção do banco (<code>ToolsService</code>).</td></tr>
+      <tr><td>Integrações</td><td><code>integrations/</code></td><td>Pastas monitoradas (<code>WatchFolderService</code>) e webhooks (<code>WebhookService</code>), assinando o barramento de eventos.</td></tr>
+      <tr><td>Banco</td><td><code>db/</code></td><td>SQLite com migrações, chaves estrangeiras, restrições e busca FTS5. Detalhado no manual do banco de dados.</td></tr>
+      <tr><td>Interface</td><td><code>src/main/resources/static/</code></td><td>A interface, servida pelo Spring: módulos ES sem build. Fala com a API por <code>fetch</code> e recebe eventos por SSE.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s-caminho">O caminho de um documento</h3>
+  <ol class="steps">
+    <li><strong>Importação</strong> (<code>LibraryService.importFile</code>): o arquivo é copiado para <code>tmp\</code> calculando o SHA-256; o tipo é conferido pelo conteúdo (cabeçalho <code>%PDF-</code> ou zip com <code>word/document.xml</code>); se a impressão digital é nova, o documento é criado como <code>queued</code> e o arquivo vai para <code>documentos\&lt;id&gt;\original.pdf</code>. Evento <code>document.created</code>.</li>
+    <li><strong>Leitura</strong> (<code>extract</code>): PDFs vão para o <code>PdfBoxProcessor</code>, que devolve texto (páginas separadas por <code>\f</code>), sumário, metadados e a capa em JPEG; DOCX são lidos pelo <code>DocxExtractor</code>, que gera o HTML de leitura (higienizado), as imagens e a capa tipográfica.</li>
+    <li><strong>Descrição</strong> (<code>describe</code>): o texto vai para o provedor de IA escolhido; o resultado e as etiquetas são gravados e o índice de busca é atualizado.</li>
+    <li><strong>Pronto</strong>: cada mudança de etapa gera um evento (SSE) que atualiza a tela sozinha; ao terminar, o evento <code>document.ready</code> também dispara os webhooks.</li>
+  </ol>
+
+  <h3 id="s-fila">Fila e recuperação</h3>
+  <ul>
+    <li>A leitura roda um documento por vez e a descrição até dois ao mesmo tempo, num <code>ExecutorService</code>, sem travar a interface.</li>
+    <li>O PDFBox trabalha num fio próprio com tempo limite (4 minutos por PDF, 30 segundos por capa). Se travar, o fio é abandonado e outro é criado.</li>
+    <li>Falhas passageiras tentam de novo com espera crescente: 5 s, 15 s, 45 s (<code>ScheduledExecutorService</code>). Depois da terceira, o documento fica <strong>Com erro</strong>. Falhas definitivas (PDF protegido por senha, arquivo corrompido, <code>.doc</code> antigo) vão direto para <strong>Com erro</strong>.</li>
+    <li>Se o Lume for fechado no meio, na próxima abertura o que estava pela metade volta para a fila. Cada etapa vira uma linha na tabela <code>jobs</code>: é o histórico da tela Sistema.</li>
+    <li>As pastas monitoradas e os webhooks têm fios próprios (um agendador e um enviador), separados do pipeline.</li>
+  </ul>
+
+  <h3 id="s-seguranca">Segurança</h3>
+  <ul>
+    <li><strong>Só no próprio computador</strong>: o Tomcat escuta apenas <code>127.0.0.1</code> (porta 47820 ou a próxima livre). Nada fica acessível pela rede.</li>
+    <li><strong>Sessão da janela</strong>: o Lume abre a janela em <code>/entrar?chave=…</code> com uma chave aleatória; o servidor troca a chave por um cookie <code>lume_sessao</code> (HttpOnly, SameSite=Strict). A API e as páginas exigem esse cookie, então sites abertos no navegador não conseguem usar a API.</li>
+    <li><strong>Host e origem conferidos</strong>: pedidos com outro Host (DNS rebinding) ou, nos que alteram dados, outra Origin são recusados. <strong>Política de conteúdo (CSP)</strong>: só scripts do próprio aplicativo; links externos abrem no navegador padrão.</li>
+    <li><strong>HTML dos DOCX</strong>: passa por uma lista de permissões do jsoup; imagens externas não carregam e as internas só saem da pasta do próprio documento. <strong>Arquivos maliciosos</strong>: DOCX lido com limites por parte e no total (contra zip bomb), sem DTD nem entidades externas; PDF com memória limitada e tempo limite.</li>
+    <li><strong>Segredos</strong>: chave de API e segredos de webhook cifrados pelo cofre do Windows (DPAPI). <strong>Webhooks</strong>: só endereços <code>http</code> ou <code>https</code>, com assinatura HMAC opcional e tempo limite de 10 s. <strong>Abrir pasta</strong>: <code>/desktop/open-path</code> só abre caminhos que existem.</li>
+  </ul>
+
+  <h3 id="s-repo" class="page-break">Estrutura do repositório</h3>
+  <pre class="tree">Document-Library-Desktop/
+├── Lume.exe                       <i>executável portátil para Windows (scripts/empacotar-windows.sh)</i>
+├── pom.xml                        <i>Maven: Java 21, Spring Boot 4, PDFBox, sqlite-jdbc, jsoup, JNA</i>
+├── src/main/java/io/github/ravelroot/lume/
+│   ├── LumeApplication.java       <i>pasta de dados, instância única, porta e janela</i>
+│   ├── core/                      <i>erros da API, textos, JSON, datas</i>
+│   ├── db/                        <i>Database (JdbcTemplate + trava) e Migrations</i>
+│   ├── library/                   <i>importação, busca, leitura, anotações, coleções, lote, parecidos, estatísticas</i>
+│   ├── pipeline/                  <i>fila, etapas, retentativas, recuperação, Sistema</i>
+│   ├── processing/                <i>PDFBox, capas Java2D, paleta, jsoup</i>
+│   ├── docx/                      <i>leitor de DOCX (zip + StAX → HTML)</i>
+│   ├── ai/                        <i>resumo local, provedores, trechos do “Pergunte”</i>
+│   ├── tools/                     <i>backup, exportações, manutenção</i>
+│   ├── integrations/              <i>pastas monitoradas e webhooks</i>
+│   ├── settings/                  <i>preferências e cofre (DPAPI)</i>
+│   ├── events/                    <i>eventos ao vivo</i>
+│   ├── web/                       <i>controladores REST, SSE, filtros de sessão</i>
+│   └── desktop/                   <i>janela (Edge), diálogos, Explorador, instância única</i>
+├── src/main/resources/static/     <i>interface (HTML, CSS, JS, fontes, pdf.js)</i>
+├── src/test/java/                 <i>JUnit 6 + Spring Boot Test</i>
+├── e2e/                           <i>teste de interface com Playwright</i>
+├── packaging/windows/             <i>lançador NSIS e ícone</i>
+├── scripts/                       <i>empacotamento do Lume.exe</i>
+├── exemplos/                      <i>12 documentos fictícios</i>
+├── docs/                          <i>manuais em PDF, fontes HTML dos manuais e prints</i>
+└── .github/workflows/             <i>CI e atividade diária</i></pre>
+</section>
+
+<!-- ===================== 09 API ===================== -->
+<section class="chapter" id="ch-api">
+  <div class="chapter-head">
+    <div class="num">Capítulo 09</div>
+    <h2>API local</h2>
+    <p class="lede">Para quem quiser estender o Lume: a interface conversa com o núcleo Java por rotas REST em <code>http://127.0.0.1:47820/api/v1</code>, com JSON nos dois sentidos e o cookie de sessão. As respostas de erro têm sempre <code>{"error", "message"}</code>.</p>
+  </div>
+
+  <h3 id="s-rotas">Rotas</h3>
+  <table class="routes">
+    <thead><tr><th>Método</th><th>Rota</th><th>O que faz</th></tr></thead>
+    <tbody>
+      <tr><td>GET</td><td><code>/documents</code></td><td>Lista com <code>q</code>, <code>kind</code>, <code>status</code>, <code>shelf</code>, <code>favorite</code>, <code>collection</code>, <code>tag</code>, <code>sort</code>, <code>page</code>, <code>page_size</code></td></tr>
+      <tr><td>GET · PATCH · DELETE</td><td><code>/documents/{id}</code></td><td>Detalhes, edição de título/autor/descrição e exclusão</td></tr>
+      <tr><td>GET</td><td><code>/documents/{id}/file</code></td><td>Arquivo original, com Range e ETag (<code>?download=1</code> para anexo)</td></tr>
+      <tr><td>GET</td><td><code>/documents/{id}/cover</code> · <code>/reader</code> · <code>/media/{nome}</code></td><td>Capa, HTML de leitura do DOCX e imagens</td></tr>
+      <tr><td>POST</td><td><code>/documents/{id}/reprocess</code> · <code>/describe</code></td><td>Ler o arquivo de novo · gerar a descrição de novo</td></tr>
+      <tr><td>PUT</td><td><code>/documents/{id}/tags</code></td><td>Substitui as etiquetas (até 12)</td></tr>
+      <tr><td>GET · PATCH</td><td><code>/documents/{id}/reading</code></td><td>Estante, página, progresso, favorito; <code>POST …/open</code> registra a abertura</td></tr>
+      <tr><td>GET · POST</td><td><code>/documents/{id}/annotations</code></td><td>Anotações do documento; <code>…/annotations/export</code> em Markdown</td></tr>
+      <tr><td>PATCH · DELETE</td><td><code>/annotations/{id}</code></td><td>Edita ou apaga uma anotação</td></tr>
+      <tr><td>GET · POST</td><td><code>/collections</code> · <code>/collections/{id}</code></td><td>Coleções (também PATCH e DELETE); <code>…/documents</code> põe e tira, <code>…/order</code> ordena</td></tr>
+      <tr><td>GET</td><td><code>/stats</code> · <code>/tags</code></td><td>Contadores do menu e “continuar lendo” · etiquetas em uso</td></tr>
+      <tr><td>GET · POST</td><td><code>/system</code> · <code>/system/retry-failed</code></td><td>Painel do sistema · devolver os com erro para a fila</td></tr>
+      <tr><td>GET · PATCH</td><td><code>/me</code></td><td>Nome, tema e preferências do leitor</td></tr>
+      <tr><td>GET · PUT · POST</td><td><code>/settings/ai</code> · <code>/settings/ai/test</code></td><td>Provedor de IA (a chave nunca é devolvida) · teste</td></tr>
+      <tr><td>GET</td><td><code>/events</code></td><td>Eventos ao vivo (Server-Sent Events)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s-rotas-novas">Rotas novas da 2.1.0 <span class="tag new">2.1.0</span></h3>
+  <table class="routes">
+    <thead><tr><th>Método</th><th>Rota</th><th>Corpo e resposta</th></tr></thead>
+    <tbody>
+      <tr><td>POST</td><td><code>/documents/batch</code></td><td><code>{ids: [...] (até 500), action, value}</code> com <code>action</code> = <code>shelf</code> (value <code>""</code>, <code>para_ler</code>, <code>lendo</code>, <code>lido</code>), <code>favorite</code>, <code>unfavorite</code>, <code>tags_add</code> (lista de nomes), <code>collection_add</code>, <code>collection_remove</code> (id), <code>delete</code>, <code>reprocess</code>, <code>redescribe</code> → <code>{ok, affected}</code></td></tr>
+      <tr><td>POST</td><td><code>/documents/{id}/ask</code></td><td><code>{question}</code> (3 a 500 caracteres) → <code>{answer, mode, model, passages: [{text, page, score}], warning}</code>; <code>mode</code> é <code>local</code>, <code>anthropic</code> ou <code>openai</code></td></tr>
+      <tr><td>GET</td><td><code>/documents/{id}/related</code></td><td><code>?limit=6</code> → documentos prontos parecidos, no mesmo formato da listagem</td></tr>
+      <tr><td>GET</td><td><code>/insights</code></td><td><code>{totals, reading, kinds, added_by_month, finished_by_month, top_tags, largest, languages}</code></td></tr>
+      <tr><td>POST</td><td><code>/tools/backup</code></td><td>Diálogo “Salvar” do Windows → <code>{ok, path, bytes, documents}</code> (ou <code>{ok: false}</code> se cancelar)</td></tr>
+      <tr><td>GET</td><td><code>/tools/export/catalog</code></td><td><code>?format=csv|json|bibtex|markdown&amp;ids=a,b</code> → <code>{filename, content, mime, count}</code></td></tr>
+      <tr><td>POST</td><td><code>/tools/export/markdown-folder</code></td><td>Diálogo de pasta → <code>{ok, folder, files}</code></td></tr>
+      <tr><td>POST</td><td><code>/tools/maintenance</code></td><td><code>{action}</code>: <code>check</code>, <code>reindex</code>, <code>optimize</code>, <code>cleanup</code> ou <code>redescribe</code></td></tr>
+      <tr><td>GET</td><td><code>/integrations</code></td><td><code>{watch_folders, webhooks, scan_interval_s, webhook_events}</code></td></tr>
+      <tr><td>POST · PATCH · DELETE</td><td><code>/integrations/watch-folders</code> · <code>/{id}</code></td><td>Adiciona (<code>{path?, collection?}</code>; sem <code>path</code>, abre o seletor), altera <code>{enabled, collection}</code> ou remove; <code>POST …/scan</code> → <code>{imported, duplicates, failed}</code></td></tr>
+      <tr><td>POST · PATCH · DELETE</td><td><code>/integrations/webhooks</code> · <code>/{id}</code></td><td>Cadastra <code>{url, events, format, secret}</code>, altera ou remove; <code>POST …/{id}/test</code> → <code>{ok, status, message}</code></td></tr>
+      <tr><td>POST</td><td><code>/desktop/open-path</code></td><td><code>{path}</code>: abre a pasta (ou mostra o arquivo) no Explorador, se existir</td></tr>
+    </tbody>
+  </table>
+  <h4>Exemplos</h4>
+  <pre><code>// Pôr três documentos na estante "Lendo"
+await fetch("/api/v1/documents/batch", { method: "POST", headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ ids: [a, b, c], action: "shelf", value: "lendo" }) });   // → {"ok": true, "affected": 3}
+
+// Perguntar ao documento
+await fetch(`/api/v1/documents/${id}/ask`, { method: "POST", headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ question: "Quais são os prazos?" }) });
+// → {"answer": "…", "mode": "local", "passages": [{"text": "…", "page": 4, "score": 3.2}, …]}</code></pre>
+
+  <h3 id="s-ponte">Ponte com o Windows</h3>
+  <p>O que a janela pede ao sistema passa por <code>/api/v1/desktop</code>. O arquivo <code>js/desktop.js</code> da interface expõe essas rotas como <code>window.lume</code>, com as mesmas funções da versão em Electron, então o resto da interface não depende de onde está rodando.</p>
+  <table class="routes">
+    <thead><tr><th>Rota</th><th>Função</th><th>O que faz</th></tr></thead>
+    <tbody>
+      <tr><td><code>import</code></td><td><code>importFiles(caminhos, {collection})</code></td><td>Importa arquivos pelo caminho no disco</td></tr>
+      <tr><td><code>upload</code></td><td><code>upload(arquivo)</code></td><td>Recebe um arquivo solto na janela (corpo = bytes)</td></tr>
+      <tr><td><code>expand</code></td><td><code>expandPaths(caminhos)</code></td><td>Troca pastas pela lista dos PDFs e DOCX dentro delas</td></tr>
+      <tr><td><code>pick-files</code> · <code>pick-folder</code></td><td><code>pickFiles()</code> · <code>pickFolder()</code></td><td>Diálogos de abrir arquivos e pasta</td></tr>
+      <tr><td><code>open-file</code> · <code>show-in-folder</code> · <code>save-copy</code></td><td><code>openFile(id)</code> · <code>showInFolder(id)</code> · <code>saveCopy(id)</code></td><td>Programa padrão, Explorador e salvar cópia</td></tr>
+      <tr><td><code>save-text</code></td><td><code>saveText(nome, texto)</code></td><td>Salvar texto; o filtro do diálogo segue a extensão (<code>.md</code>, <code>.csv</code>, <code>.json</code>, <code>.bib</code>, <code>.txt</code>)</td></tr>
+      <tr><td><code>open-path</code> <span class="tag new">2.1.0</span></td><td><code>openPath(caminho)</code></td><td>Abre uma pasta ou mostra um arquivo (depois de backup e exportação)</td></tr>
+      <tr><td><code>open-data-folder</code> · <code>open-external</code> · <code>info</code></td><td><code>openDataFolder()</code> · <code>openExternal(url)</code> · <code>info()</code></td><td>Pasta de dados · link no navegador padrão · versões e caminho</td></tr>
+      <tr><td><code>window</code> (PUT)</td><td>—</td><td>Guarda posição e tamanho da janela para a próxima abertura</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s-eventos">Eventos ao vivo</h3>
+  <p><code>GET /api/v1/events</code> é um fluxo Server-Sent Events; cada mensagem é um JSON com <code>type</code> e os dados. O evento só avisa o que mudou: a interface busca o documento de novo na API.</p>
+  <table>
+    <thead><tr><th style="width:30%">Evento</th><th>Quando</th></tr></thead>
+    <tbody>
+      <tr><td><code>document.created</code> · <code>document.updated</code> · <code>document.deleted</code></td><td>Documento importado, mudou de etapa ou de dados, excluído</td></tr>
+      <tr><td><code>document.ready</code> <span class="tag new">2.1.0</span></td><td>O pipeline terminou o documento como pronto</td></tr>
+      <tr><td><code>reading.updated</code> · <code>shelf.finished</code> <span class="tag new">2.1.0</span></td><td>Estante, página ou favorito mudaram · o documento foi para “Lidos”</td></tr>
+      <tr><td><code>annotation.created</code> <span class="tag new">2.1.0</span></td><td>Nova anotação</td></tr>
+      <tr><td><code>collections.changed</code> · <code>system.changed</code></td><td>Coleções alteradas · algo mudou na tela Sistema</td></tr>
+      <tr><td><code>watch.imported</code> <span class="tag new">2.1.0</span></td><td>Uma pasta monitorada trouxe documentos novos (<code>{folder, count}</code>)</td></tr>
+      <tr><td><code>import.failed</code></td><td>Um arquivo foi recusado na importação</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== 10 DESENVOLVIMENTO ===================== -->
+<section class="chapter" id="ch-dev">
+  <div class="chapter-head">
+    <div class="num">Capítulo 10</div>
+    <h2>Desenvolvimento</h2>
+    <p class="lede">O código-fonte está todo no repositório. Para rodar a partir dele você precisa do JDK 21, do Maven 3.9 e do Git; o Node.js só é usado no teste de interface e o Python só para gerar estes manuais.</p>
+  </div>
+
+  <h3>Rodar a partir do código</h3>
+  <pre><code>git clone https://github.com/ravelroot/Document-Library-Desktop.git
+cd Document-Library-Desktop
+mvn spring-boot:run                                              # compila e abre o Lume (janela no Edge)
+mvn spring-boot:run -Dspring-boot.run.arguments=--sem-janela     # só o servidor</code></pre>
+  <p>Em desenvolvimento, a pasta de dados é a mesma do aplicativo empacotado. Para usar outra, defina <code>LUME_DATA_DIR</code> antes de rodar (no PowerShell: <code>$env:LUME_DATA_DIR="C:\temp\lume"</code>). Com <code>--sem-janela</code>, o endereço de entrada aparece no console (<code>Lume pronto: http://127.0.0.1:47820/entrar?chave=…</code>). O intervalo das pastas monitoradas vem da propriedade <code>lume.watch-interval-s</code> (padrão 60 segundos; 0 desliga o agendador, como nos testes).</p>
+
+  <h3>Testes</h3>
+  <table>
+    <thead><tr><th style="width:36%">Comando</th><th>O que verifica</th></tr></thead>
+    <tbody>
+      <tr><td><code>mvn test</code></td><td>JUnit 6 e Spring Boot Test: banco e restrições, migrações, importação, busca, etiquetas, estantes, anotações, coleções, pipeline com falhas e recuperação, API, Range, sessão, leitor de DOCX, PDFBox, capas, higienização do HTML, provedores de IA e, na 2.1.0, ações em lote, “Pergunte ao documento”, parecidos, estatísticas, exportações, backup, manutenção, pastas monitoradas e webhooks</td></tr>
+      <tr><td><code>npm --prefix e2e install</code><br><code>npm --prefix e2e test</code></td><td>Sobe o Lume sem janela, importa os 12 exemplos, espera o processamento e percorre as telas no Chromium (Playwright), incluindo seleção em lote, paleta, “Pergunte”, Estatísticas, Ferramentas e Integrações</td></tr>
+      <tr><td><code>npm --prefix e2e test -- --prints</code></td><td>O mesmo, salvando os prints em <code>docs/images</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Gerar o Lume.exe</h3>
+  <pre><code>bash scripts/empacotar-windows.sh     # Linux ou Git Bash no Windows; precisa de makensis (NSIS)
+# 1. mvn package + dependências em target/lib
+# 2. jlink: Java 21 reduzido para Windows x64 (só os módulos usados)
+# 3. NSIS: Lume.exe portátil com o Java, o lume.jar e a tela de abertura</code></pre>
+  <p>O script baixa o JDK Temurin 21 para Windows (só os <code>jmods</code>), monta o Java reduzido, tira do driver do SQLite as bibliotecas nativas de outros sistemas e gera o <code>Lume.exe</code> com compressão LZMA, conferindo o limite de 100 MB por arquivo do GitHub. O executável não tem assinatura digital; para assinar, use um certificado de assinatura de código no <code>signtool</code>.</p>
+
+  <h3>Gerar estes manuais</h3>
+  <pre><code>pip install weasyprint==70.0
+python docs/fonte/gerar_pdfs.py            # Manual-Lume-Desktop.pdf e Banco-de-Dados-Lume-Desktop.pdf
+python docs/fonte/gerar_pdfs.py manual     # só o manual</code></pre>
+  <p>Os manuais são escritos em HTML e CSS (<code>docs/fonte/</code>), com as fontes da própria interface, e gravados na raiz do repositório e em <code>docs/</code>. Gere os prints antes, com o teste de interface.</p>
+
+  <h3>Integração contínua</h3>
+  <p>O workflow <code>ci.yml</code> roda em cada envio para o GitHub: <code>mvn verify</code> no Ubuntu com o JDK 21, o teste de interface com Playwright e a geração do <code>Lume.exe</code>, guardado como artefato da execução.</p>
+
+  <h3>Atividade diária</h3>
+  <p>O workflow <code>diario.yml</code> registra uma linha em <code>.github/atividade.txt</code> duas vezes por dia, às 10:47 e às 20:26 (Brasília), com horários reserva (12:09, 13:53 e 16:17 no 1º turno; 21:58 e 23:11 no 2º), todos em minutos quebrados, que o GitHub atrasa menos. A data do registro vem do horário agendado: uma execução atrasada que passe da meia-noite conta para o dia certo. Ele baixa só a pasta <code>.github</code>. Para ativar:</p>
+  <ol class="steps">
+    <li>No GitHub, abra <strong>Settings → Secrets and variables → Actions</strong>.</li>
+    <li>Crie os secrets <code>GIT_NAME</code> (seu nome) e <code>GIT_EMAIL</code> (use o e-mail <em>noreply</em> do GitHub, em <strong>Settings → Emails</strong>).</li>
+    <li>Em <strong>Actions → Atividade diária → Run workflow</strong>, rode uma vez para conferir.</li>
+  </ol>
+  <div class="note"><span class="eyebrow">Antes de enviar</span>Como o workflow diário faz commits na <code>main</code>, rode <code>git pull --rebase</code> antes de cada <code>git push</code>.</div>
+</section>
+
+<!-- ===================== 11 PROBLEMAS ===================== -->
+<section class="chapter" id="ch-problemas">
+  <div class="chapter-head">
+    <div class="num">Capítulo 11</div>
+    <h2>Solução de problemas</h2>
+    <p class="lede">Os casos mais comuns e o que fazer. O arquivo <code>lume.log</code>, na pasta de dados, registra o que aconteceu em cada abertura; <strong>Ferramentas → Verificar a biblioteca</strong> confere o banco e os arquivos.</p>
+  </div>
+  <table>
+    <thead><tr><th style="width:31%">Sintoma</th><th>O que fazer</th></tr></thead>
+    <tbody>
+      <tr><td>O Windows bloqueia o <code>Lume.exe</code></td><td>Clique em <strong>Mais informações → Executar assim mesmo</strong>. Se o antivírus apagar o arquivo, restaure-o da quarentena e adicione uma exceção (executáveis portáteis sem assinatura às vezes são confundidos).</td></tr>
+      <tr><td>Demora para abrir</td><td>A primeira abertura extrai o Java e o aplicativo (alguns segundos); as seguintes só sobem o Spring Boot. Em pendrives lentos, a primeira abertura demora mais.</td></tr>
+      <tr><td>A janela não aparece</td><td>O Lume usa o Microsoft Edge. Atualize o Edge pelo Windows Update; sem ele, o Lume abre no navegador padrão. Veja o motivo em <code>lume.log</code>.</td></tr>
+      <tr><td>“O Lume já está aberto, mas não respondeu”</td><td>Feche o processo <code>javaw.exe</code> do Lume no Gerenciador de Tarefas e abra de novo.</td></tr>
+      <tr><td>Um PDF ficou “Com erro”</td><td>Veja a mensagem nos detalhes. Protegido por senha: abra num leitor de PDF, salve uma cópia sem senha e importe de novo. Erros passageiros: <strong>Ler o arquivo de novo</strong> (ou, para vários, a seleção em lote).</td></tr>
+      <tr><td>PDF sem descrição útil ou sem resposta no “Pergunte”</td><td>PDFs digitalizados (só imagem) não têm texto; a descrição avisa isso. Passe o arquivo por um OCR e importe de novo.</td></tr>
+      <tr><td>A descrição ou a resposta não usa a IA externa</td><td>Confira a chave e clique em <strong>Testar</strong> em Preferências. O motivo da queda para o modo local aparece em Sistema e no aviso abaixo da resposta.</td></tr>
+      <tr><td>Uma pasta monitorada não importa</td><td>Confira se a pasta está ativa e existe (a linha mostra “Pasta não encontrada”), clique em <strong>Verificar agora</strong> e veja <code>lume.log</code>. Arquivos recusados uma vez só são tentados de novo quando mudam; arquivos só “na nuvem” do OneDrive precisam estar baixados.</td></tr>
+      <tr><td>O webhook mostra erro</td><td>Use <strong>Testar</strong> e leia o código HTTP. 401/403: confira o endereço completo e o segredo; tempo esgotado: o serviço não respondeu em 10 s; endereços internos exigem que o computador alcance a rede deles.</td></tr>
+      <tr><td>A busca não acha algo que existe</td><td><strong>Ferramentas → Reconstruir o índice de busca</strong>.</td></tr>
+      <tr><td>O banco cresceu muito</td><td><strong>Ferramentas → Limpar sobras</strong> e depois <strong>Otimizar o banco de dados</strong>.</td></tr>
+      <tr><td>“O banco foi criado por uma versão mais nova”</td><td>Você abriu uma biblioteca com um Lume mais antigo. Use o executável mais novo.</td></tr>
+      <tr><td>Quero começar do zero</td><td>Faça um backup, feche o Lume e renomeie a pasta de dados (veja em Sistema). Na próxima abertura, uma biblioteca vazia é criada.</td></tr>
+      <tr><td>Levar para outro computador</td><td>Faça um <strong>Backup completo</strong> e restaure no outro computador (ou use o modo portátil). A chave de API e os segredos de webhook não vão junto: cadastre de novo.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== 12 REFERÊNCIA ===================== -->
+<section class="chapter" id="ch-ref">
+  <div class="chapter-head">
+    <div class="num">Capítulo 12</div>
+    <h2>Referência</h2>
+    <p class="lede">Termos usados neste manual, os componentes de terceiros e a história das versões.</p>
+  </div>
+
+  <h3 id="s-glossario">Glossário</h3>
+  <dl class="gloss">
+    <div class="item"><dt>BM25</dt><dd>Fórmula de relevância usada pela busca (FTS5) e pelo “Pergunte ao documento”: termos raros e repetidos valem mais.</dd></div>
+    <div class="item"><dt>DPAPI</dt><dd>Cofre de dados do Windows; cifra a chave de API e os segredos de webhook para a sua conta.</dd></div>
+    <div class="item"><dt>FTS5</dt><dd>Busca em texto completo embutida no SQLite, com tokenizador sem acentos.</dd></div>
+    <div class="item"><dt>HMAC-SHA256</dt><dd>Assinatura que prova que um webhook veio do Lume: um código calculado com o segredo e o corpo.</dd></div>
+    <div class="item"><dt>jlink</dt><dd>Ferramenta do JDK que monta um Java reduzido só com os módulos usados.</dd></div>
+    <div class="item"><dt>Livro-caixa</dt><dd>O quadro de números das estantes (Quero ler, Lendo, Lidos) no cabeçalho da biblioteca.</dd></div>
+    <div class="item"><dt>Paleta de comandos</dt><dd>Caixa única aberta com <kbd>Ctrl</kbd> <kbd>K</kbd> para ir a telas, executar ações e achar documentos.</dd></div>
+    <div class="item"><dt>Pasta monitorada</dt><dd>Pasta cujos PDFs e DOCX novos entram sozinhos na biblioteca.</dd></div>
+    <div class="item"><dt>SHA-256</dt><dd>Impressão digital do conteúdo do arquivo; impede o mesmo arquivo duas vezes.</dd></div>
+    <div class="item"><dt>SSE</dt><dd>Server-Sent Events: o canal pelo qual o núcleo avisa a janela de cada mudança.</dd></div>
+    <div class="item"><dt>Trecho</dt><dd>Pedaço de 400 a 700 caracteres do texto, com a página, usado nas respostas do “Pergunte”.</dd></div>
+    <div class="item"><dt>Webhook</dt><dd>Endereço que recebe um aviso em JSON quando algo acontece no Lume.</dd></div>
+  </dl>
+
+  <h3 id="s-terceiros">Componentes de terceiros</h3>
+  <table class="compact">
+    <thead><tr><th style="width:30%">Componente</th><th>Uso no projeto</th><th style="width:22%">Licença</th></tr></thead>
+    <tbody>
+      <tr><td>Spring Boot / Spring Framework</td><td>Núcleo, API REST e injeção de dependências</td><td>Apache-2.0</td></tr>
+      <tr><td>Apache Tomcat</td><td>Servidor HTTP embutido (127.0.0.1)</td><td>Apache-2.0</td></tr>
+      <tr><td>Apache PDFBox</td><td>Texto, sumário, metadados e capas dos PDFs</td><td>Apache-2.0</td></tr>
+      <tr><td>SQLite JDBC</td><td>Banco local com busca FTS5</td><td>Apache-2.0</td></tr>
+      <tr><td>jsoup</td><td>Lista de permissões do HTML de leitura</td><td>MIT</td></tr>
+      <tr><td>JNA</td><td>Cofre do Windows (DPAPI), registro e foco da janela</td><td>Apache-2.0 / LGPL-2.1</td></tr>
+      <tr><td>Jackson</td><td>JSON da API</td><td>Apache-2.0</td></tr>
+      <tr><td>Eclipse Temurin (OpenJDK)</td><td>Java embutido no Lume.exe</td><td>GPL-2.0 com Classpath Exception</td></tr>
+      <tr><td>NSIS</td><td>Lançador portátil do Lume.exe</td><td>zlib</td></tr>
+      <tr><td>pdf.js</td><td>Renderização de PDF no leitor</td><td>Apache-2.0</td></tr>
+      <tr><td>Lucide</td><td>Ícones da interface</td><td>ISC</td></tr>
+      <tr><td>Public Sans · Literata · IBM Plex Mono</td><td>Fontes da interface, da leitura, das capas e dos rótulos</td><td>SIL Open Font License 1.1</td></tr>
+      <tr><td>JUnit · Playwright</td><td>Testes automatizados</td><td>EPL-2.0 / Apache-2.0</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s-versoes">Histórico de versões</h3>
+  <div class="version">
+    <div class="vh"><span class="vn">2.1.0</span><span class="vd">Outubro de 2026 · esta versão</span></div>
+    <ul>
+      <li>Identidade visual da versão web 1.1 (Rosé tinta como assinatura, IBM Plex Mono, filtros em abas, livro-caixa, capas com lombada).</li>
+      <li>Seleção múltipla com ações em lote; paleta de comandos; filtro por etiqueta; lista de atalhos.</li>
+      <li>Pergunte ao documento e Parecidos na sua biblioteca.</li>
+      <li>Telas Estatísticas, Ferramentas (backup, exportações, manutenção) e Integrações (pastas monitoradas, webhooks).</li>
+      <li>Provedores de IA prontos (Gemini, Groq, OpenRouter, Mistral, DeepSeek, Ollama, LM Studio, além de Claude e OpenAI).</li>
+      <li>Manuais refeitos no novo design. Sem mudança no esquema do banco.</li>
+    </ul>
+  </div>
+  <div class="version old">
+    <div class="vh"><span class="vn">2.0.0</span><span class="vd">Outubro de 2026</span></div>
+    <ul>
+      <li>Núcleo reescrito em Java 21 com Spring Boot 4; SQLite com FTS5; PDFBox de volta ao centro; janela no Edge em modo aplicativo; Lume.exe portátil com jlink e NSIS.</li>
+    </ul>
+  </div>
+  <div class="version old">
+    <div class="vh"><span class="vn">1.x</span><span class="vd">2026</span></div>
+    <ul>
+      <li>Primeira versão desktop, em Electron, com o mesmo esquema de banco (as bibliotecas abrem direto nas versões seguintes).</li>
+    </ul>
+  </div>
+
+  <div class="colophon">
+    Lume para Windows · Manual técnico · versão 2.1.0 · outubro de 2026. Copyright © 2026 Erik Pimenta e Clara Portes. Distribuído sob a licença MIT. Composto em Literata, Public Sans e IBM Plex Mono a partir de <code>docs/fonte/manual.html</code>. Versão web: <a href="https://github.com/Violet-pixel/Document-Library-Platform">Violet-pixel/Document-Library-Platform</a> · código desta versão: <a href="https://github.com/ravelroot/Document-Library-Desktop">ravelroot/Document-Library-Desktop</a>.
+  </div>
+</section>
+
+</body>
+</html>

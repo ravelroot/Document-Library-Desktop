@@ -1,0 +1,19 @@
+# Maven
+target/
+# Teste de interface
+node_modules/
+e2e/node_modules/
+# IDEs
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+# Sistema
+*.log
+.env
+.DS_Store
+Thumbs.db
+# Dados locais de teste
+Lume-dados/
