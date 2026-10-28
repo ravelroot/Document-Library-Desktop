@@ -228,7 +228,7 @@ A ideia surgiu da vontade de ter um lugar único para organizar, ler e anotar do
 
 O repositório oficial fica na conta da Clara, em [Violet-pixel/Document-Library-Platform](https://github.com/Violet-pixel/Document-Library-Platform). A versão desktop, [Document-Library-Desktop](https://github.com/ravelroot/Document-Library-Desktop), segue a mesma parceria e reaproveita a base da versão web.
 
-Sugestões, issues e pull requests são bem-vindos nos dois repositórios.
+Sugestões, issues e pull requests são bem-vindos nos dois repositórios. Antes de abrir um, veja o [guia de contribuição](CONTRIBUTING.md).
 
 ### Componentes de terceiros
 
